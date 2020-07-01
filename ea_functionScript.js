@@ -1,17 +1,18 @@
 
 // assumed api_url is already defined ...
 
-if (typeof(ipfsversion) == 'undefined') {
-    var ipfsversion;
-    let url = api_url + 'version'
-    console.log('main.url: ',url);
-    ipfsversion = fetchGetPostJson(url).then(
-	obj => { console.log('main.version.obj: ',obj); return obj.Version; })
-	.catch(console.error)
+ipfsVersion()
+    .then (obj => ipfsversion = obj)
 
-	    } else {
-		let [callee, caller] = functionNameJS();
-		console.log("TEST."+callee+'.ipfsversion: ',ipfsversion);
+function ipfsVersion() {
+    let [callee, caller] = functionNameJS();
+    
+    let url = api_url + 'version'
+    console.log(callee+'.url: ',url);
+    return fetchGetPostJson(url)
+	.then( obj => { console.log(callee+'.obj: ',obj);
+		 return obj.Version; })
+	.catch(console.error)
 	    }
 
 function getInputValue(id) {
@@ -42,6 +43,8 @@ async function provide_directory_content() {
     let [callee, caller] = functionNameJS();
     
     let item = await provideItem('curItem')
+    console.log(callee+'.item: ',item)
+    
     let mfs_path = item.Path
     let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
     if (immutable) {
@@ -88,8 +91,7 @@ function build_directory_content(mfs_path) {
 	promise_dir_content = fetchRespCatch(url)
 	    .then ()
     } else {
-	//      url = api_url + 'files/ls?arg='+mfs_path+'&long=true&U=true'
-	url = api_url + 'files/ls?arg='+mfs_path+'&l=true&U=true'
+	url = api_url + 'files/ls?arg='+mfs_path+'&long=true&U=true'
 	promise_dir_content = fetchRespCatch(url)
 	    .then ()
     }
@@ -133,9 +135,11 @@ function provide_file_content() {
 
 async function provideItem(ofwhat) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
-
+    console.log(callee+'.input.ofwhat:',ofwhat);
+    
     if (typeof(stored[ofwhat]) != 'undefined') {  
 	return stored[ofwhat]
+
     } else if (ofwhat == 'curItem') {
 	// created (build)
 	let mfs_path = getInputValue('mfs_pathinputid'); // provide Input !
@@ -148,6 +152,8 @@ async function provideItem(ofwhat) {
 	item.Name = mfs_path.substr(slash+1);
 	console.log(callee+'.item:',item);
 	stored[ofwhat] = item;
+	console.log(callee+'.item:',item)
+	console.log(callee+' item => stored[',ofwhat,']');
 	return item;
     } else {
 	throw "Error: "+ofwhat+" not previously stored !";
@@ -158,6 +164,9 @@ function providePinFullStatus(ofwhat) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
 
     let hash = stored[ofwhat].Hash;
+    console.log(callee+'.hash:',hash)
+    console.log(callee+' hash <= stored[',ofwhat,'].Hash');
+
     return getPinStatus(hash);
 }
 
@@ -167,6 +176,9 @@ async function providePinStatusThrough(ofwhat) {
     let hash;
     if (ofwhat == 'item') {
 	hash = stored[ofwhat].Hash;
+	console.log(callee+'.hash:',hash)
+	console.log(callee+' hash <= stored[',ofwhat,'].Hash');
+	
 	let pin_full_status = await getPinStatus(hash);
 	let pin_split_status = splitPinFullStatus(pin_full_status)
 	return pin_split_status;
@@ -220,7 +232,9 @@ function splitPinFullStatus(fullstatus) {
 async function provideHashofMfsPath(ofwhat) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
 
-    if (typeof(stored[ofwhat].Hash) != 'undefined') {  
+    if (typeof(stored[ofwhat].Hash) != 'undefined') {
+	console.log(callee+' hash <= stored[',ofwhat,'].Hash');
+
 	return stored[ofwhat].Hash
     } else {
 	let mfs_path = stored[ofwhat].mfs_path
