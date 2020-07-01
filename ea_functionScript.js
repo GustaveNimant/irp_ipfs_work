@@ -1,320 +1,306 @@
-/**
- * these function should Not refer to any hardcoded id 
- */
-function baseName(mfspath){
+
+// assumed api_url is already defined ...
+
+if (typeof(ipfsversion) == 'undefined') {
+    var ipfsversion;
+    let url = api_url + 'version'
+    console.log('main.url: ',url);
+    ipfsversion = fetchGetPostJson(url).then(
+	obj => { console.log('main.version.obj: ',obj); return obj.Version; })
+	.catch(console.error)
+
+	    } else {
+		let [callee, caller] = functionNameJS();
+		console.log("TEST."+callee+'.ipfsversion: ',ipfsversion);
+	    }
+
+function getInputValue(id) {
     let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.mfspath:',mfspath);
     
-    var base = new String(mfspath).substring(mfspath.lastIndexOf('/') + 1); 
-    if(base.lastIndexOf(".") != -1) {       
-	base = base.substring(0, base.lastIndexOf("."));
-    }
-    console.log(callee+'.result:',result);
-    return base;
-}
-
-// Button
-
-function callback (id) {
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.id:',id);
-    
-    const result = obj => {
-	updateInnerHTMLOfIdOfValue(id, obj); 
-    };
-    
-    console.log(callee+'.result:',result);
-    return result
-}
-
-function callbackIpfsIo (id) {
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.id:',id);
-
-    const substi = obj => {
-	let text = "<a href=https://ipfs.io/ipfs/"+obj+">"+obj+"</a>";
-	updateInnerHTMLOfIdOfValue(id, text);
-    };
-    return substi
-}
-
-function callbackIpfsLocal (id) {
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.id:',id);
-
-    const substi = obj => {
-	let text = "<a href=http://127.0.0.1:5001/ipfs/"+obj+">"+obj+"</a>";
-	updateInnerHTMLOfIdOfValue(id, text);
-    };
-    return substi
-}
-
- function callbackOfIdOfId (id1, id2) { 
-     let [callee, caller] = functionNameJS();
-     console.log('Entering in',callee,'called by',caller);
-     console.log(callee+'.input.id1:',id1)
-     console.log(callee+'.input.id2:',id2)
-     
-     const substi = ([obj1, obj2]) => {
-	 let url = linkIpfsHash (obj1);
-	 updateInnerHTMLOfIdOfValue(id1, url);
-	 updateInnerHTMLOfIdOfValue(id2, obj2);
-     };
-     return substi
- }
-
-function chopOfMfsPath(mfspath){
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.mfspath:',mfspath);
-    // MfsPath is decomposed into
-    //   [ParentDirectory, BaseName, RootName, Extension]
-    // Ex.: "/my/ceci/Z_block.txt" =>
-    //     ["/my/ceci", "Z_block.txt", "Z_block", ".txt" ]
-    if (mfspath.match('/./')) {
-	[parent,basename] = mfspath.split('/./')
+    let e = document.getElementById(id);
+    if (typeof(e) !=  'undefined') {
+	return e.value
     } else {
-	let p = mfspath.lastIndexOf('/')
-	if (p != 0) {
-	    parent = mfspath.substr(0,p)
-	    basename = mfspath.substr(p+1)
+	let [callee, caller] = functionNameJS();
+	console.error(callee+'.id: '+id+ 'not found');
+    }
+}
+
+async function getStatofMfsPath(mfs_path) {
+    let [callee, caller] = functionNameJS();
+    let url = api_url + 'files/stat?arg='+mfs_path+'&hash=true&type=true'
+    return fetchGetPostJson(url)
+	.then(obj => {
+	    obj.Type = obj.Type.charAt(0).toUpperCase() + obj.Type.slice(1);
+	    console.log(callee+'.obj: ',obj);
+	    return obj;
+	})
+	.catch(console.error)
+	    }  
+
+async function provide_directory_content() {
+    let [callee, caller] = functionNameJS();
+    
+    let item = await provideItem('curItem')
+    let mfs_path = item.Path
+    let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
+    if (immutable) {
+	mfs_path = mfs_path.replace(new RegExp('[^/]+/\.\./'),'') // TBD
+    } else {
+	mfs_path = mfs_path.replace(new RegExp('[^/]+/\.\./'),'')
+    }
+    
+    // build directory content ...
+    return build_directory_content(mfs_path);
+}
+
+function build_directory_content(mfs_path) {
+    let [callee, caller] = functionNameJS(); // logInfo("message !")
+
+    let parent_path = mfs_path + '../';
+    let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
+    console.log(callee+'.immutable: ',immutable)
+
+    if (mfs_path == '/' || immutable) {
+	parent_path = '/';
+    }
+    console.log(callee+'.parent_path: '+parent_path)
+    let promise_parent_hash = getHashofMfsPath(parent_path)
+
+    let url; // .. long=true for IPFS 0.5
+    let promise_dir_content
+    if ( immutable ) {
+	url = api_url + 'file/ls?arg='+mfs_path
+	promise_dir_content = fetchRespCatch(url)
+	    .then( json => {
+		console.log(callee+'.immutable.ls.json: ',json)
+		let hash = json.Arguments[mfs_path]
+		let content = json.Objects[hash].Links
+		console.log(callee+'.file.ls: ',content)
+		json.Entries = content; // map as if it was a "files/ls" API call
+		const typetonum = { 'Directory': 1,'File': 0 }
+		json.Entries.forEach( e => { e.Type = typetonum[e.Type] } )
+		return json;
+	    })
+	
+    } else if ( ipfsversion == '0.4.22') {
+	url = api_url + 'files/ls?arg='+mfs_path+'&l=true&U=true'
+	promise_dir_content = fetchRespCatch(url)
+	    .then ()
+    } else {
+	//      url = api_url + 'files/ls?arg='+mfs_path+'&long=true&U=true'
+	url = api_url + 'files/ls?arg='+mfs_path+'&l=true&U=true'
+	promise_dir_content = fetchRespCatch(url)
+	    .then ()
+    }
+
+    return Promise.all([promise_parent_hash,promise_dir_content]) 
+	.then(_ => {
+	    [parent_hash, obj] = _
+	    console.log(callee+'.promise.results: ',_);
+	    let table_of_content = obj.Entries;
+	    table_of_content.forEach( e => { e.Type = ['File','Directory'][e.Type] } )
+	    if (table_of_content == null) {
+		table_of_content = [];
+	    }
+	    let parent_item = { Name:'..', Type:'Directory', Size:0, Hash:parent_hash, Path:mfs_path }
+	    console.log(callee+'.parent_item: ',parent_item);
+	    table_of_content.unshift(parent_item)
+	    console.log(callee+'.TOC:',table_of_content);
+	    return { "dirname":mfs_path, "parent":parent_hash, "TOC":table_of_content };
+
+
+	})
+	.catch( obj => { logError(callee+'.catch',obj) })
+	    }
+
+function getHashofMfsPath(mfs_path) {
+    let [callee, caller] = functionNameJS();
+    
+    let  url = api_url + 'files/stat?arg='+mfs_path+'&hash=true'
+    return fetchGetPostJson(url) // get
+	.then( json => {
+            return json.Hash
+	})
+}
+
+function provide_file_content() {
+    let [callee, caller] = functionNameJS();
+    
+    let mfs_path = getInputValue('mfs_pathinputid');
+    return getContentofMfsPath(mfs_path);
+}
+
+async function provideItem(ofwhat) {
+    let [callee, caller] = functionNameJS(); // logInfo("message !")
+
+    if (typeof(stored[ofwhat]) != 'undefined') {  
+	return stored[ofwhat]
+    } else if (ofwhat == 'curItem') {
+	// created (build)
+	let mfs_path = getInputValue('mfs_pathinputid'); // provide Input !
+	var stat = await getStatofMfsPath(mfs_path);
+
+	let item = stat;
+	item.Path = mfs_path
+	let slash = mfs_path.lastIndexOf('/')
+	item.DirName = mfs_path.substring(0,slash+1);
+	item.Name = mfs_path.substr(slash+1);
+	console.log(callee+'.item:',item);
+	stored[ofwhat] = item;
+	return item;
+    } else {
+	throw "Error: "+ofwhat+" not previously stored !";
+    }
+}
+
+function providePinFullStatus(ofwhat) {
+    let [callee, caller] = functionNameJS(); // logInfo("message !")
+
+    let hash = stored[ofwhat].Hash;
+    return getPinStatus(hash);
+}
+
+async function providePinStatusThrough(ofwhat) {
+    let [callee, caller] = functionNameJS();
+    
+    let hash;
+    if (ofwhat == 'item') {
+	hash = stored[ofwhat].Hash;
+	let pin_full_status = await getPinStatus(hash);
+	let pin_split_status = splitPinFullStatus(pin_full_status)
+	return pin_split_status;
+    }
+}
+
+async function providePinStatus(ofwhat) {
+    let [callee, caller] = functionNameJS();
+    
+    let pin_status;
+    [pin_status, _] = await providePinStatusThrough(ofwhat) // provide
+    return pin_status;
+
+}
+async function provideThrough(ofwhat) {
+    let [callee, caller] = functionNameJS();
+    
+    let pin_through;
+    [_,pin_through] = await providePinStatusThrough(ofwhat) // provide
+    return pin_through;
+}
+
+function splitPinFullStatus(fullstatus) {
+    let [callee, caller] = functionNameJS();
+    console.log(callee+'.input.fullstatus: ',fullstatus)
+    
+    let matches = fullstatus.match(/(\w+)\s+through (\w+)/)
+    console.log(callee+'.matches: ',matches)
+    
+    let pin_status
+    let qm_through
+    if (matches) {
+	pin_status = matches[1]
+	qm_through = matches[2]
+	console.log(callee+'.pin_status:',pin_status)
+	console.log(callee+'.qm_through: '+qm_through )
+    } else {
+	pin_status = fullstatus
+	if (pin_status == 'unpinned') {
+	    qm_through = 'QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH'
 	} else {
-	    parent = '/';
-	    basename = mfspath.substr(1)
+	    qm_through = null
 	}
     }
-    let d = basename.lastIndexOf('.')
-    if (d != -1) {
-	rootName = basename.substr(0,d)
-	ext = basename.substr(d)
+    console.log(callee+'.pin_status:',pin_status)
+    console.log(callee+'.qm_through:',qm_through)
+    
+    return [pin_status,qm_through]
+}
+
+async function provideHashofMfsPath(ofwhat) {
+    let [callee, caller] = functionNameJS(); // logInfo("message !")
+
+    if (typeof(stored[ofwhat].Hash) != 'undefined') {  
+	return stored[ofwhat].Hash
     } else {
-	rootName = basename
-	ext = ''
+	let mfs_path = stored[ofwhat].mfs_path
+	console.log(callee+'.stored['+ofwhat+']: ',stored[ofwhat]);
+	console.log(callee+'.mfs_path: ',mfs_path);
+	let  url = api_url + 'files/stat?arg='+mfs_path+'&hash=true'
+	let hash = await fetchGetPostJson(url) // build/get
+	    .then( json => {
+		stored[ofwhat].Hash = json.Hash
+		return json.Hash
+	    })
+	    .catch( console.error )
+		return hash;
     }
-    let result = [parent, baseName, rootName, ext]; 
-    console.log(callee+'.result:',result);
-    return result;
 }
 
-function errorMessage (expected, found, cure, caller) {
-    console.error ('\n\nError in',caller);
-    console.error ('Expecting',expected);
-    console.error ('Found',found);
-    console.error ('Cure',cure);
-    var stack = new Error().stack;
-    console.error ('stack',stack);
-    throw "exit";
-}
+function getPinStatus(hash) { // getdata
+    let [callee, caller] = functionNameJS(); // logInfo("message !")
 
-function functionNameJS () {
-   let stack = new Error().stack;
- 
-//    console.log('functionNameJS.stack:',stack);
+    let  url = api_url + 'pin/ls?arg=/ipfs/'+hash+'&type=all'
+    return fetchRespNoCatch(url)
+	.then( obj => {
+	    let status;
+	    if (typeof(obj.Code) == 'undefined') {
+		status = obj.Keys[hash].Type
+	    } else {
+		status = 'unpinned'
+	    }
+	    console.log(callee+'.hash'+hash+" \u21A6",status);
+	    return Promise.resolve(status)
+	})
+	.catch( obj => { logError('getPinStatus.catch',obj) })
+	    }
 
-    var callee;
-    var caller;
-    var stackArray= [];
-    let navigator = navigatorName();
-    switch (navigator){
-    case "Chrome":
-	stackArray = stack.split('at ');
-	callee = stackArray[2].split(' ')[0];
-	if (stackArray[3] == undefined) {
-	    caller = "main";
-	}
-	else{
-	    caller = stackArray[3].split(' ')[0];
-	}
-	if(caller.match("http:")){caller = "main"};
-	break;
-	
-    case "Firefox":
-	stackArray = stack.split('\n');
-	callee = stackArray[1].split('@')[0];
-	caller = stackArray[2].split('@')[0];
-	if (caller == "") {caller = "main"};
-	break;
-	
-    default:
-	console.error('functionNameJS.navigator',navigator);
-	throw "unknown navigator "+navigator;
-    } // switch
-
-    return [callee, caller];
-}
-
-function imageOfType(type) { // Improve reference to hardcoded src
-     let [callee, caller] = functionNameJS();
-     console.log('Entering in',callee,'called by',caller);
-
-     if (type == 0) { return '<img src="images/file.png" width="25px" height="25">'; }
-     else { return '<img src="images/folder.png" width="25px" height="25">'; }
- }
-
-function logErrorOfHash (err, hash) {
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.err:',err);
-    console.log(callee+'input.hash:',hash);
+function togglePinStatus(status, hash) {
+    let [callee, caller] = functionNameJS(); // logInfo("message !")
+    console.log(callee+'.input.status:',status);
+    console.log(callee+'.input.hash:',hash);
     
-    const message = err.message;
-    console.log(callee+'.message:',message);
-    updateInnerHTMLOfIdOfValue("SpanErrorId", message); // Improve
-    
-    switch (message){
-    case "Internal Server Error":
-	var text = "Internal Server Error because ipfs file path was uncorrect<br>run : ipfs pin add "+hash;
-	updateInnerHTMLOfIdOfValue("SpanErrorId", text);
-	break;
-    default:
-	console.log(callee+'.default.err:',err);
-    } // switch
-}
+    if (status == 'unpinned' || status == 'indirect') {
+	return ipfsPinAdd(hash)
+	    .then( _ => { return getPinStatus(hash)})
 
-function logError (err) {
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.err:',err);
-    
-    const message = err.message;
-    console.log(callee+'message',message);
-    updateInnerHTMLOfIdOfValue("SpanErrorId", message);
-    switch (message){
-	
-    case "NetworkError when attempting to fetch resource.":
-	var text = "NetworkError because ipfs has not been launched<br>run : jsm; . config.sh; ipmsd.sh";
-	updateInnerHTMLOfIdOfValue("SpanErrorId", text); 
-	break;
-	
-    case "Failed to fetch":
-	var text = "NetworkError because ipfs has not been launched<br>run :cd minichain ; . config.sh";
-	updateInnerHTMLOfIdOfValue("SpanErrorId", text); 
-	break;	     
-	
-    case "Internal Server Error":
-	//			 var text = "Internal Server Error because ipfs file path was uncorrect";
-	//			 updateInnerHTMLOfIdOfValue("SpanErrorId", text); 
-	return false;
-	break;
-	
-    case "Cannot read property 'length' of null":
-	console.log(callee+'.Cannot read property length of null');
-	updateInnerHTMLOfIdOfValue("SpanErrorId", '');
-	var dir = document.getElementById('CurrentMfsDirectoryId').value;
-	console.log(callee+'.dir', dir);
-	updateInnerHTMLOfIdOfValue('H3SpanTitleId', dir + ' is empty');
-	break;
-	
-    case "entries is null":
-        console.log(callee+':entries is null');
-	updateInnerHTMLOfIdOfValue("SpanErrorId", '');
-	var dir = document.getElementById('CurrentMfsDirectoryId').value;
-	console.log(callee+'.dir', dir);
-	updateInnerHTMLOfIdOfValue('H3SpanTitleId', dir + ' is empty');
-	break;
-
-    case "Cannot read property 'QmPcmWRAzbsDA25SENuZ7qRCPWYsPsWCgQV4vKPndydryc' of undefined":
-	updateInnerHTMLOfIdOfValue("SpanErrorId", '');
-	break;
-	
-    default:
-	console.log(callee+'"default err:',);
-    } // switch
-}
-
-function navigatorName () {
-    let navNam = navigator.userAgent;
-//    console.log('navigatorName.navNam',navNam);
-
-    var result = "";
-    if(navNam.match("Firefox")){
-	result = "Firefox";
+    } else if (status == 'direct' || status == 'recursive' || status == 'indirect-not-through')  {
+	return ipfsPinRm(hash)
+	    .then( _ => { return getPinStatus(hash)})
+    } else {
+	console.log(callee+'.status:',status);
+	return Promise.resolve('???');
     }
-    else if(navNam.match("Chrome")){
-	result = "Chrome";
-    }
-    else {
-	throw "Error in navigatorName.unknown navigator "+navNam;
-    }
-//    console.log('navigatorName.result',result);
-    return result;
 }
 
- function validate (resp) {
-     let [callee, caller] = functionNameJS();
-     console.log('Entering in',callee,'called by',caller);
-     console.log(callee+'.input.resp:',resp);
-     
-     if (resp.status >= 200 && resp.status < 300) {
-	 return Promise.resolve(resp)
-     } else {
-	 console.log(callee+'.resp.status:',resp.status)
-	 return Promise.reject(new Error(resp.statusText))
-     }
- }
 
-// Json
-
-function sizeOfJsonOfKey (json, key) {
+function ipfsPinAdd(hash) {
     let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.json:',json);
-    console.log(callee+'.input.key:',key);
     
-    let siz = json[key]['Size']
-    if (siz > 0) { return ' ('+siz+' octets) '; }
-    else {return "";}
-}
+    let url = api_url + 'pin/add?arg=/ipfs/'+hash+'&progress=true'
+    return fetchGetPostText(url)
+	.then(text => { console.log('ipfsPinAdd.text',text); })
+	.catch(err => console.error(err, hash))
+	    }
 
-function typeOfJsonOfKey (json, key) {
+function ipfsPinRm(hash) {
     let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.json:', json);
-    console.log(callee+'.input.key:', key);
-
-    let result = json[key]['Type'];
-    console.log(callee+'.result:', result);
-    return result;
-}
-
-function typeImageOfJsonOfKey (json, key) {
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.json',json);
-    console.log(callee+'.input.key',key);
-
-    let type = typeOfJsonOfKey (json, key);
-    console.log (callee+'.type:', type);
-
-    result = imageOfType(type);
-    console.log (callee+'.result:', result);
-    return result;
-}
-
-function stackOfDirectoryPath(dirPat){
-    // /my/ceci/truc => [ '/', '/my', '/my/ceci', '/my/ceci/truc' ]
-    let [callee, caller] = functionNameJS();
-    console.log('Entering in',callee,'called by',caller);
-    console.log(callee+'.input.dirPat:',dirPat);
-
-    let dirArr = dirPat.split('/');
-
-    var current = '';
-    var result= ['/'];
-    for (p of dirArr) {
-	if (p != '') {
-	    console.log(callee+'.p:',p);
-	    current += '/' + p ;
-	    console.log(callee+'.current:',current);
-	    result.push(current);
-	}
-    }
     
-    console.log(callee+'.result:',result);
-    return result;
+    let url = api_url + 'pin/rm?arg=/ipfs/'+hash
+    console.log('ipfsPinRm.url',url)
+    return fetchGetPostJson(url)
+	.then( json => { console.log('ipfsPinRm.json',json);
+			 return json.Pins  // Improve when recursive ?
+		       })
+	.catch(err => console.error(err, hash))
+	    } 
+
+
+function getContentofMfsPath(mfsPath) {
+    let [callee, caller] = functionNameJS();
+    
+    let  url = api_url + 'files/read?arg='+mfsPath
+    return fetchRespCatch(url)
 }
+
 
