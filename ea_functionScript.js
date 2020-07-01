@@ -44,6 +44,8 @@ async function provide_directory_content() {
     
     let item = await provideItem('curItem')
     console.log(callee+'.item: ',item)
+    console.log(callee+':directory_content needs curItem')
+    console.log(callee+':item.Path needs curItem')
     
     let mfs_path = item.Path
     let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
@@ -68,13 +70,14 @@ function build_directory_content(mfs_path) {
 	parent_path = '/';
     }
     console.log(callee+'.parent_path: '+parent_path)
+    console.log(callee+':parent_hash needs parent_path')
     let promise_parent_hash = getHashofMfsPath(parent_path)
 
     let url; // .. long=true for IPFS 0.5
-    let promise_dir_content
+    let promise_directory_content
     if ( immutable ) {
 	url = api_url + 'file/ls?arg='+mfs_path
-	promise_dir_content = fetchRespCatch(url)
+	promise_directory_content = fetchRespCatch(url)
 	    .then( json => {
 		console.log(callee+'.immutable.ls.json: ',json)
 		let hash = json.Arguments[mfs_path]
@@ -88,15 +91,17 @@ function build_directory_content(mfs_path) {
 	
     } else if ( ipfsversion == '0.4.22') {
 	url = api_url + 'files/ls?arg='+mfs_path+'&l=true&U=true'
-	promise_dir_content = fetchRespCatch(url)
+	promise_directory_content = fetchRespCatch(url)
 	    .then ()
     } else {
 	url = api_url + 'files/ls?arg='+mfs_path+'&long=true&U=true'
-	promise_dir_content = fetchRespCatch(url)
+	promise_directory_content = fetchRespCatch(url)
 	    .then ()
     }
 
-    return Promise.all([promise_parent_hash,promise_dir_content]) 
+    console.log(callee+':directory_content needs mfs_path')
+    
+    return Promise.all([promise_parent_hash,promise_directory_content]) 
 	.then(_ => {
 	    [parent_hash, obj] = _
 	    console.log(callee+'.promise.results: ',_);
@@ -128,7 +133,8 @@ function getHashofMfsPath(mfs_path) {
 
 function provide_file_content() {
     let [callee, caller] = functionNameJS();
-    
+
+    console.log(callee+':file_content needs mfs_pathinputid')
     let mfs_path = getInputValue('mfs_pathinputid');
     return getContentofMfsPath(mfs_path);
 }
@@ -142,6 +148,7 @@ async function provideItem(ofwhat) {
 
     } else if (ofwhat == 'curItem') {
 	// created (build)
+	console.log(callee+':curItem needs mfs_pathinputid')
 	let mfs_path = getInputValue('mfs_pathinputid'); // provide Input !
 	var stat = await getStatofMfsPath(mfs_path);
 
@@ -185,6 +192,7 @@ async function providePinStatusThrough(ofwhat) {
     }
 }
 
+/* to be deleted
 async function providePinStatus(ofwhat) {
     let [callee, caller] = functionNameJS();
     
@@ -200,6 +208,7 @@ async function provideThrough(ofwhat) {
     [_,pin_through] = await providePinStatusThrough(ofwhat) // provide
     return pin_through;
 }
+*/
 
 function splitPinFullStatus(fullstatus) {
     let [callee, caller] = functionNameJS();
@@ -238,6 +247,7 @@ async function provideHashofMfsPath(ofwhat) {
 	return stored[ofwhat].Hash
     } else {
 	let mfs_path = stored[ofwhat].mfs_path
+	console.log(callee+' mfs_path <= stored[',ofwhat,'].mfs_path');
 	console.log(callee+'.stored['+ofwhat+']: ',stored[ofwhat]);
 	console.log(callee+'.mfs_path: ',mfs_path);
 	let  url = api_url + 'files/stat?arg='+mfs_path+'&hash=true'
