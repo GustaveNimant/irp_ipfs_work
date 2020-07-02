@@ -141,7 +141,7 @@ function provide_file_contentXX() { // to be deleted
     return getContentofMfsPath(mfs_path);
 }
 
-async function provideItem(ofwhat) {
+async function provideItem(ofwhat) { // FCC in fact only curItem
     let [callee, caller] = functionNameJS(); // logInfo("message !")
     console.log(callee+'.input.ofwhat:',ofwhat);
     
@@ -154,6 +154,7 @@ async function provideItem(ofwhat) {
 	// created (build)
 	console.log(callee+':curItem needs mfs_pathinputid')
 	let mfs_path = getInputValue('mfs_pathinputid'); // provide Input !
+
 	var stat = await getStatofMfsPath(mfs_path);
 
 	let item = stat;
@@ -162,7 +163,7 @@ async function provideItem(ofwhat) {
 	item.DirName = mfs_path.substring(0,slash+1);
 	item.Name = mfs_path.substr(slash+1);
 	console.log(callee+'.item:',item);
-	stored[ofwhat] = item;
+	stored[ofwhat] = item;  // FCC storage done here
 	console.log(callee+'.item:',item)
 	console.log(callee+' item => stored[',ofwhat,']');
 	return item;
@@ -173,7 +174,8 @@ async function provideItem(ofwhat) {
 
 function providePinFullStatus(ofwhat) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
-
+    console.log(callee+'.input.ofwhat:',ofwhat);
+    
     let hash = stored[ofwhat].Hash;
     console.log(callee+'.hash:',hash)
     console.log(callee+' hash <= stored[',ofwhat,'].Hash');
@@ -183,6 +185,7 @@ function providePinFullStatus(ofwhat) {
 
 async function providePinStatusThrough(ofwhat) {
     let [callee, caller] = functionNameJS();
+    console.log(callee+'.input.ofwhat:',ofwhat);
     
     let hash;
     if (ofwhat == 'item') {
@@ -196,7 +199,8 @@ async function providePinStatusThrough(ofwhat) {
     }
 }
 
-/* to be deleted
+/* FCC to be deleted
+
 async function providePinStatus(ofwhat) {
     let [callee, caller] = functionNameJS();
     
