@@ -56,8 +56,9 @@
     </body>
 
     <script src="ea_functionScript.js"></script>
+    <script src="ea_functionError.js"></script>
     <script>
- 
+     
      // mapping ID -> function
      const outputs = {
 	 'directory_contentid': display_directory_content
@@ -106,33 +107,39 @@
 	 console.log(callee+'.item: ',item)
 
 	 if (item.Type == 'Directory') {
-	     display_directory_content();
+	     display_directory_content();  // FCC  display_directory_content (item)
 	 } else if (item.Type == 'File') {
-	     display_file_content();
+	     display_file_content(); // FCC   display_file_content (item)
 	 } else {
 	     console.error(callee+'.item.Type:',item.Type);
+	     console.error(callee+'.Error check that IPFS is running : jsm; . config.sh; ipmsd.sh');
 	 }
 
      }
 
-     async function display_directory_content() {
+     async function display_directory_content() { // FCC  display_directory_content (item)
 	 let [callee, caller] = functionNameJS(); // logInfo("message !")
 
-	 let table = await provide_directory_content();
-
+	 let table = await provide_directory_content(); // FCC  provide_directory_content (item)
+	 console.log(callee+'.provide.table: ',table)
 	 let table_of_content = table.TOC
 	 let te = document.getElementById('directory_contentid')
 	 
 	 let mfs_path = table.dirname
+	 console.log(callee+'.update mfs_path <= table.dirname',table.dirname)
+	 console.log(callee+'.update directory_pathid <= mfs_path',mfs_path)
+
 	 document.getElementById('directory_pathid').innerHTML = mfs_path
 
 	 clear_display_directory_content();
 
+	 // build_directory_content
 	 for (item of table_of_content) {
 	     console.log(callee+'.item:',item)
 
 	     item.DirName = mfs_path; 
 	     let filename = item.Name
+
 	     stored['item'] = item;
 	     
 	     item.FullStatus = await providePinFullStatus('item')
@@ -175,11 +182,14 @@
 	 newrow.innerHTML = row.innerHTML; // copy previous row content
 
 	 display_pin(item,newrow);
+	 console.log(callee+'.update mfs_pathinputid <= item.Path',item.Path)
 
 	 let file_name_click=newrow.getElementsByClassName('file_name_click')[0]
 	 file_name_click.onclick = function() {
 	     document.getElementById('mfs_pathinputid').value = item.Path
 	     //stored['QmHash'] = item.Hash
+	     console.log(callee+'.stored["item"] = ',stored['item'])
+	     console.log(callee+'.update stored curItem <= item',item)
 	     stored['curItem'] = item
 	     display()
 	 }
@@ -244,15 +254,14 @@
      async function display_file_content() {
 	 let [callee, caller] = functionNameJS();
 	 
-	 console.log(callee+'.stored[curItem]: ',stored['curItem'])
+	 console.log(callee+'.stored["curItem"]: ',stored['curItem'])
 	 
 	 let item = await provideItem('curItem')
 	 console.log(callee+'.item: ',item)
 
 	 let mfs_path = item.Path
-	 let content = await provide_file_content();
-	 
-	 
+	 // let content = await provide_file_content();
+	 let content = await getContentofMfsPath(mfs_path)
 	 let [pin_status,pin_through] = splitPinFullStatus(item.FullStatus)
 	 let hash = item.Hash
 	 

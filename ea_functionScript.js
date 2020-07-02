@@ -36,10 +36,10 @@ async function getStatofMfsPath(mfs_path) {
 	    console.log(callee+'.obj: ',obj);
 	    return obj;
 	})
-	.catch(console.error)
+	.catch(logError)
 	    }  
 
-async function provide_directory_content() {
+async function provide_directory_content() { // FCC provide_directory_content(item) 
     let [callee, caller] = functionNameJS();
     
     let item = await provideItem('curItem')
@@ -131,11 +131,13 @@ function getHashofMfsPath(mfs_path) {
 	})
 }
 
-function provide_file_content() {
+function provide_file_contentXX() { // to be deleted
     let [callee, caller] = functionNameJS();
 
-    console.log(callee+':file_content needs mfs_pathinputid')
     let mfs_path = getInputValue('mfs_pathinputid');
+    console.log(callee+':file_content needs mfs_pathinputid')
+    console.log(callee+':mfs_path',mfs_path)
+
     return getContentofMfsPath(mfs_path);
 }
 
@@ -143,10 +145,12 @@ async function provideItem(ofwhat) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
     console.log(callee+'.input.ofwhat:',ofwhat);
     
-    if (typeof(stored[ofwhat]) != 'undefined') {  
+    if (typeof(stored[ofwhat]) != 'undefined') { // always curItem
+	console.log(callee+':retrieving stored[ofwhat] ofwhat=',ofwhat)
+	console.log(callee+':retrieving stored[ofwhat] value=',stored[ofwhat])
 	return stored[ofwhat]
 
-    } else if (ofwhat == 'curItem') {
+    } else if (ofwhat == 'curItem') { // the item clicked on
 	// created (build)
 	console.log(callee+':curItem needs mfs_pathinputid')
 	let mfs_path = getInputValue('mfs_pathinputid'); // provide Input !
@@ -163,7 +167,7 @@ async function provideItem(ofwhat) {
 	console.log(callee+' item => stored[',ofwhat,']');
 	return item;
     } else {
-	throw "Error: "+ofwhat+" not previously stored !";
+	throw "Error: "+ofwhat+" not previously stored in curItem!";
     }
 }
 
