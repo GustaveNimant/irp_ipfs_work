@@ -91,8 +91,6 @@ function fetch_directory_content(mfs_path) {
 	    table_of_content.unshift(parent_item)
 	    console.log(callee+'.TOC:',table_of_content);
 	    return { "dirname":mfs_path, "parent":parent_hash, "TOC":table_of_content };
-
-
 	})
 	.catch( obj => { logError(callee+'.catch',obj) })
 	    }
@@ -119,7 +117,6 @@ async function provideItem(ofwhat) {
 	// created (build)
 	let mfs_path = getInputValue('mfs_pathinputid'); // provide Input !
 	var stat = await getStatofMfsPath(mfs_path);
-
 	let item = stat;
 	item.Path = mfs_path
 	let slash = mfs_path.lastIndexOf('/')
@@ -145,7 +142,7 @@ function splitPinFullStatus(fullstatus) {
     if (matches) {
 	pin_status = matches[1]
 	qm_through = matches[2]
-	console.log('through-qm: '+qm_through )
+	console.log(callee+'.qm_through:'+qm_through )
     } else {
 	pin_status = fullstatus
 	if (pin_status == 'unpinned') {
@@ -195,7 +192,6 @@ function togglePinStatus(status, hash) {
     }
 }
 
-
 function ipfsPinAdd(hash) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
     console.log(callee+'.input.hash:',hash);
@@ -219,7 +215,6 @@ function ipfsPinRm(hash) {
 	.catch(err => console.error(err, hash))
 	    } 
 
-
 function getContentofMfsPath(mfsPath) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
     console.log(callee+'.input.mfsPath:',mfsPath);
@@ -228,4 +223,30 @@ function getContentofMfsPath(mfsPath) {
     return fetchRespCatch(url)
 }
 
+function saveSingleFile() {
+    let [callee, caller] = functionNameJS();
 
+    let mfs_path = document.getElementById("file_pathid").innerHTML;
+    console.log(callee+'.mfs_path:',mfs_path);
+    let content = document.getElementById("file_contentid").value;
+    console.log(callee+'.content:',content);
+    
+    ipfsWriteText(mfs_path, content);
+    console.log(callee+'.mfs_path updated');
+}
+    
+async function asyncSaveSingleFile() {
+    let [callee, caller] = functionNameJS();
+
+    let cur_item = await provideItem('curItem');
+    console.log(callee+'.cur_item:',cur_item);
+    
+    let mfs_path = cur_item.Path;
+    console.log(callee+'.mfs_path:',mfs_path);
+    let content = document.getElementById("file_contentid").value;
+    console.log(callee+'.content:',content);
+    
+    ipfsWriteText(mfs_path, content);
+    console.log(callee+'.mfs_path updated');
+}
+    

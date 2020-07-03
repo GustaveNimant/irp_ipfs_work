@@ -32,12 +32,10 @@
 		<tr><th>pin</th><th>hash</th>
 		    <tr id=file_row0id class=file_row_class>
 			<td class="pin_status_cell" name="mHash">unpinned</td>
-			<td class="file_hash_cell"><a class="file_hash_link" href=#>Qm12345</a></td>
+			<td class=file_hash_cell><a class=file_hash_link href=#>Qm12345</a></td>
 		    </tr>
 	</table>
 	content:<br><textarea id=file_contentid>file's content</textarea>
-	<br>
-	<button type=button onclick="save()">Save</button>
 	<div>
 
 	</div>
@@ -47,25 +45,5 @@
 	btnlink => button_pin_status_link
 	button => button_pin_status_click > button_pin_status_toggle
 
-	https://willforge.github.io/jsring/js/ipfs.js
-
-	function ipfsWriteBinary(mfspath,buf) { 
-	function ipfsWriteContent(mfspath,buf) {
-	function ipfsWriteText(mfspath,buf) {
-	function ipfsWriteJson(mfspath,obj) {
-	function getMFSFileHash(mfspath) {
-	function ipfsGetContentHash(buf) {
-
-
-	stored['curItem'] => stored['curItem'][item.Path] = item ?
-
-        let content = provideContent(item); ???
-
-	stored['content'][item.Path] = content ?
-	in display_file_content()  ??? 
-	if (stored['curItem'][mfs_path]){
-	 let content = stored['curItem'][mfs_path]
-	}
-	else {
-	let content = await getContentofMfsPath(mfs_path);
-	}
+        getPinStatus => fetchPinStatus
+        getHashofMfsPath => fetchHashofMfsPath

@@ -20,44 +20,47 @@
 
 <body>
 
-<div id=inputdivid>
-<h2>Inputs</h2>
-mfs: <input type=text id=mfs_pathinputid placeholder="mfs_path" size=56 value="/">
-<button type=button onclick="action('Clear & Display')">display</button>
-</div>
-<hr>
-<div id=outputdivid>
-<h2>Outputs</h2>
-<table id=directory_contentid border=1>
-    <thead>
-    <tr><th colspan=4><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
-    <tr><th>pin</th><th>type</th><th>name</th><th>hash</th></tr>
-    </thead>
-    <tbody>
-    <tr id=dir_row0id class=ls_row">
-    <td class="pin_status">
-       <button class="pin_status_click" name="QmHash" onclick="alert('clicked')">pinStatus</button>
-       <span class="pin_status_span"> through <a href="#" class=pin_status_link>QmHash</a></span></td>
-    <td class=file_type>fileType</td>
-    <td class=file_name><a class=file_name_click href=#>fileName</a></td>
-    <td class=file_hash><a class=file_hash_link href=#>QmHash</a></td>
-    </tr>
-    </tbody>
-</table>
-<div>
-<hr>
-<table id=file_attributesid border=1>
-    <tr><th colspan=2><h4 id="file_pathid" class="whiteOnDarkBlue">filepath</h4></th>
-    <tr><th>pin</th><th>hash</th>
-    <tr id=file_row0id class=file_row_class>
-    <td class="pin_status_cell" name="mHash">unpinned</td>
-    <td class=file_hash_cell><a class=file_hash_link href=#>Qm12345</a></td>
-    </tr>
-</table>
-content:<br><textarea id=file_contentid>file's content</textarea>
-<div>
+    <div id=inputdivid>
+	<h2>Inputs</h2>
+	mfs: <input type=text id=mfs_pathinputid placeholder="mfs_path" size=56 value="/">
+	<button type=button onclick="action('Clear & Display')">display</button>
+    </div>
+    <hr>
+    <div id=outputdivid>
+	<h2>Outputs</h2>
+	<table id=directory_contentid border=1>
+	    <thead>
+		<tr><th colspan=4><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
+		<tr><th>pin</th><th>type</th><th>name</th><th>hash</th></tr>
+	    </thead>
+	    <tbody>
+		<tr id=dir_row0id class=ls_row">
+		    <td class="pin_status">
+			<button class="pin_status_click" name="QmHash" onclick="alert('clicked')">pinStatus</button>
+			<span class="pin_status_span"> through <a href="#" class=pin_status_link>QmHash</a></span></td>
+		    <td class=file_type>fileType</td>
+		    <td class=file_name><a class=file_name_click href=#>fileName</a></td>
+		    <td class=file_hash><a class=file_hash_link href=#>QmHash</a></td>
+		</tr>
+	    </tbody>
+	</table>
+	<div>
+	    <hr>
+	    <table id=file_attributesid border=1>
+		<tr><th colspan=2><h4 id="file_pathid" class="whiteOnDarkBlue">filepath</h4></th>
+		    <tr><th>pin</th><th>hash</th>
+			<tr id=file_row0id class=file_row_class>
+			    <td class="pin_status_cell" name="mHash">unpinned</td>
+			    <td class=file_hash_cell><a class=file_hash_link href=#>Qm12345</a></td>
+			</tr>
+	    </table>
+	    content:<br><textarea id=file_contentid>file's content</textarea>
+	    <br>
+	    <button type=button onclick="asyncSaveSingleFile()">Save</button>
 
-</div>
+	    <div>
+
+	    </div>
 
 </body>
 
@@ -113,6 +116,7 @@ content:<br><textarea id=file_contentid>file's content</textarea>
 
  async function display() {
      let [callee, caller] = functionNameJS(); // logInfo("message !")
+
      let cur_item = await provideItem('curItem');
 
      if (cur_item.Type == 'Directory') {
@@ -224,7 +228,9 @@ content:<br><textarea id=file_contentid>file's content</textarea>
 
  function display_pin(item,row) {
      let [callee, caller] = functionNameJS(); // logInfo("message !")
-
+     console.log(callee+'.input.item:',item);
+     console.log(callee+'.input.row:',row);
+     
      let [pin_status,pin_through] = splitPinFullStatus(item.FullStatus)
 
      let btnlink = row.getElementsByClassName('pin_status_link')[0]
@@ -292,13 +298,11 @@ content:<br><textarea id=file_contentid>file's content</textarea>
      let [callee, caller] = functionNameJS();
 
      console.log(callee+'.stored[curItem]: ',stored['curItem'])
-
      let cur_item = await provideItem('curItem')
-
      console.log(callee+'.cur_item: ',cur_item)
-     let mfs_path = item.Path
-     let content = await getContentofMfsPath(mfs_path);
 
+     let mfs_path = cur_item.Path 
+     let content = await getContentofMfsPath(mfs_path);
 
      let [pin_status,pin_through] = splitPinFullStatus(cur_item.FullStatus)
      let hash = cur_item.Hash
