@@ -37,7 +37,8 @@
 		<tr id=dir_row0id class=ls_row">
 		    <td class="pin_status">
 			<button class="pin_status_click" name="QmHash" onclick="alert('clicked')">pinStatus</button>
-			<span class="pin_status_span"> through <a href="#" class=pin_status_link>QmHash</a></span></td>
+			<span class="pin_status_span"> through <a href="#" class=pin_status_link>QmHash</a></span>
+		    </td>
 		    <td class=file_type>fileType</td>
 		    <td class=file_name><a class=file_name_click href=#>fileName</a></td>
 		    <td class=file_hash><a class=file_hash_link href=#>QmHash</a></td>
@@ -47,20 +48,18 @@
 	<div>
 	    <hr>
 	    <table id=file_attributesid border=1>
-		<tr><th colspan=2><h4 id="file_pathid" class="whiteOnDarkBlue">filepath</h4></th>
-		    <tr><th>pin</th><th>hash</th>
-			<tr id=file_row0id class=file_row_class>
-			    <td class="pin_status_cell" name="mHash">unpinned</td>
-			    <td class=file_hash_cell><a class=file_hash_link href=#>Qm12345</a></td>
-			</tr>
+		<tr><th colspan=2><h4 id="file_pathid" class="whiteOnDarkBlue">filepath</h4></th></tr>
+		<tr><th>pin</th><th>hash</th></tr>
+		<tr id=file_row0id class=file_row_class>
+		    <td class="pin_status_cell" name="mHash">unpinned</td>
+		    <td class=file_hash_cell><a class=file_hash_link href=#>Qm12345</a></td>
+		</tr>
 	    </table>
 	    content:<br><textarea id=file_contentid>file's content</textarea>
 	    <br>
 	    <button type=button onclick="asyncSaveSingleFile()">Save</button>
-
-	    <div>
-
-	    </div>
+	    
+	</div>
 
 </body>
 
@@ -307,10 +306,15 @@
      let [pin_status,pin_through] = splitPinFullStatus(cur_item.FullStatus)
      let hash = cur_item.Hash
 
+     console.log(callee+'.cur_item.Hash: ',cur_item.Hash)
      console.log(callee+'.cur_item.Name: ',cur_item.Name)
+     console.log(callee+'.cur_item.Path: ',cur_item.Path)
      console.log(callee+'.cur_item.FullStatus: ',cur_item.FullStatus)
 
-     document.getElementById('file_pathid').innerHTML = cur_item.Path
+     let file_pathid_doc = document.getElementById('file_pathid');
+     file_pathid_doc.innerHTML = cur_item.Path
+     console.log(callee+'.file_pathid_doc: ',file_pathid_doc);
+     console.log(callee+'.file_pathid_doc.innerHTML: ',file_pathid_doc.innerHTML);
 
      let row = document.getElementById('file_attributesid').rows[2];
      console.log(callee+'.row: ',row);
