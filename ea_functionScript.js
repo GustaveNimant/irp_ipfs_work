@@ -228,11 +228,12 @@ function saveSingleFile() {
 
     let mfs_path = document.getElementById("file_pathid").innerHTML;
     console.log(callee+'.mfs_path:',mfs_path);
+
     let content = document.getElementById("file_contentid").value;
     console.log(callee+'.content:',content);
     
-    ipfsWriteText(mfs_path, content);
-    console.log(callee+'.mfs_path updated');
+    ipfsWriteText(mfs_path, content)
+	.then (console.log(callee+'.mfs_path updated'));
 }
     
 async function asyncSaveSingleFile() {
@@ -243,10 +244,11 @@ async function asyncSaveSingleFile() {
     
     let mfs_path = cur_item.Path;
     console.log(callee+'.mfs_path:',mfs_path);
+    
     let content = document.getElementById("file_contentid").value;
     console.log(callee+'.content:',content);
     
-    ipfsWriteText(mfs_path, content);
+    ipfsWriteContent(mfs_path, content);
     console.log(callee+'.mfs_path updated');
 }
     
