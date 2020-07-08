@@ -6,7 +6,6 @@ thisscript.version = '1.0';
 thisscript.name = thisscript.src.replace(RegExp('.*/([^/]+)$'),"$1");
 console.log(thisscript.name+': '+thisscript.version);
 
-
 function getInputValue(id) {
     let e = document.getElementById(id);
     if (typeof(e) !=  'undefined') {
@@ -174,7 +173,6 @@ function togglePinStatus(status, hash) {
 	return Promise.resolve('???');
     }
 }
-
 
 function ipfsPinAdd(hash) {
     let url = api_url + 'pin/add?arg=/ipfs/'+hash+'&progress=true'

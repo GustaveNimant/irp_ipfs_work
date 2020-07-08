@@ -28,7 +28,7 @@
 	<hr>
 	<div id=adddivid>
 	    add: <input type="file"  name="filepath" id="FakePathId" onchange="preFillFileName(this)"> add under name
-	    <input type="text"  name="filepath" value="" placeholder="mfs file path" id="file_addpathid">
+	    <input type="text" name="filepath" value="" placeholder="mfs file path" id="file_addpathid">
 	    <button name=add onclick="action('Upload & Display')">OK</button>
 	</div>
 	<hr>
@@ -36,8 +36,8 @@
 	    <h2>Outputs</h2>
 	    <table id=directory_contentid border=1>
 		<thead>
-		    <tr><th colspan=5><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
-		    <tr><th>pin</th><th>type</th><th>name</th><th>hash</th><th>remove</th></tr>
+		    <tr><th colspan=6><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
+		    <tr><th>pin</th><th>type</th><th>name</th><th>hash</th><th>remove</th><th>copy</th></tr>
 		</thead>
 		<tbody>
 		    <tr id=dir_row0id class=ls_row">
@@ -48,6 +48,9 @@
 			<td class=file_name><a class=file_name_click href=#>fileName</a></td>
 			<td class=file_hash><a class=file_hash_link href=#>QmHash</a></td>
 			<td class=file_remove><button>Remove</button></td>
+			<td class=file_copy><button>Copy</button>
+			    to <input type="text" id="file_target_id" placeholder="IPMS Path">
+			</td>
 		    </tr>
 		</tbody>
 	    </table>
@@ -126,6 +129,27 @@
 	 }
      }
 
+     function copyFile(item) {
+	 let [callee, caller] = functionNameJS();
+	 console.log(callee+'.input.item:',item);
+	 
+	 var from = item.Path;
+	 var doc = document.getElementsByClassName('file_copy')[0];
+	 console.log(callee+'.doc:',doc);
+	 var target = doc.lastElementChild.value;
+	 console.log(callee+'.target:',target);
+
+	 if ( from.charAt(0) != '/') {
+	     from = '/ipfs/' + from;
+	 }
+	 
+	 var url = api_url + 'files/cp?arg='+from+'&arg='+target
+	 console.log(callee+'.url:',url);
+	 return fetch(url, { method: "POST", mode: 'cors'})
+	     .then (resp => {console.log(callee+'.resp',resp)})
+	     .catch(logError)
+     }
+
      function removeFile (item) {
 	 let [callee, caller] = functionNameJS();
 	 console.log(callee+'.input.item:',item);
@@ -173,7 +197,7 @@
 		 console.log(callee+'.event:',event)
 		 let content = event.target.result;
 		 return content
-             })
+	     })
 	     .catch(console.error)
 
      }
@@ -251,7 +275,7 @@
 
      function display_row(item) {
 	 let [callee, caller] = functionNameJS(); // logInfo("message !")
-	 console.log('display_row:',item.Name)
+	 console.log(callee+'.input.item:',item)
 	 let e = document.getElementById('directory_contentid');
 	 let last = e.rows.length-1
 	 let row = e.rows[last];
@@ -274,13 +298,19 @@
 	 file_hash_link.href = 'http://localhost:8080/ipfs/'+item.Hash
 	 file_hash_link.innerHTML = item.Hash;
 
-         let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
-         file_remove_click.onclick = function () {
+	 let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
+	 file_remove_click.onclick = function () {
 	     removeFile(item);
 	     display();
 	 }
+
+	 let file_copy_click = newrow.getElementsByClassName('file_copy')[0]
+	 console.log(callee+'.file_copy_click:',file_copy_click);
+	 file_copy_click.onclick = function () {
+	     copyFile(item);
+	 }
 	 
-	 console.log('newrow: ',newrow);
+	 console.log(callee+'.newrow: ',newrow);
      }
 
      function display_pin(item,row) {
