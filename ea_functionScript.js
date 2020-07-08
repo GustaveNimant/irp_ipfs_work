@@ -1,18 +1,13 @@
-
 // assumed api_url is already defined ...
 
-if (typeof(ipfsversion) == 'undefined') {
-    //  ipfsVersion().then( v => { ipfsversion = v })
-} else {
-    let [callee, caller] = functionNameJS();
-    console.log("TEST."+callee+'.ipfsversion: ',ipfsversion);
-}
+
+var thisscript = document.currentScript
+thisscript.version = '1.0';
+thisscript.name = thisscript.src.replace(RegExp('.*/([^/]+)$'),"$1");
+console.log(thisscript.name+': '+thisscript.version);
 
 
 function getInputValue(id) {
-    let [callee, caller] = functionNameJS();
-    console.log(callee+'.input.id:',id);
-    
     let e = document.getElementById(id);
     if (typeof(e) !=  'undefined') {
 	return e.value
@@ -24,8 +19,6 @@ function getInputValue(id) {
 
 async function getStatofMfsPath(mfs_path) {
     let [callee, caller] = functionNameJS();
-    console.log(callee+'.input.mfs_path',mfs_path);
-    
     let url = api_url + 'files/stat?arg='+mfs_path+'&hash=true&type=true'
     return fetchGetPostJson(url)
 	.then(obj => {
@@ -38,12 +31,11 @@ async function getStatofMfsPath(mfs_path) {
 
 function fetch_directory_content(mfs_path) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
-    console.log(callee+'.input.mfs_path:',mfs_path);
-    
-    let parent_path = mfs_path + '../';
-    let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
-    console.log(callee+'.immutable: ',immutable)
 
+    let parent_path = mfs_path + '../';
+    let immutable = mfs_path.match(new RegExp('/ip[fn]s'));
+    console.log(callee+'.immutable: ',immutable);
+    
     if (mfs_path == '/' || immutable) {
 	parent_path = '/';
     }
@@ -91,14 +83,13 @@ function fetch_directory_content(mfs_path) {
 	    table_of_content.unshift(parent_item)
 	    console.log(callee+'.TOC:',table_of_content);
 	    return { "dirname":mfs_path, "parent":parent_hash, "TOC":table_of_content };
+
+
 	})
 	.catch( obj => { logError(callee+'.catch',obj) })
 	    }
 
 function getHashofMfsPath(mfs_path) {
-    let [callee, caller] = functionNameJS(); // logInfo("message !")
-    console.log(callee+'.input.mfs_path:',mfs_path);
-    
     let  url = api_url + 'files/stat?arg='+mfs_path+'&hash=true'
     return fetchGetPostJson(url) // get
 	.then( json => {
@@ -108,15 +99,15 @@ function getHashofMfsPath(mfs_path) {
 
 async function provideItem(ofwhat) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
-    console.log(callee+'.input.ofwhat:',ofwhat);
-
     if (typeof(stored[ofwhat]) != 'undefined' && stored[ofwhat] != null) {  
 	console.log(callee+'.retrieve('+ofwhat+'):',stored[ofwhat]);
 	return stored[ofwhat]
     } else if (ofwhat == 'curItem') {
 	// created (build)
 	let mfs_path = getInputValue('mfs_pathinputid'); // provide Input !
+	console.log(callee+'.rebuild('+ofwhat+').mfs_path:',mfs_path);
 	var stat = await getStatofMfsPath(mfs_path);
+
 	let item = stat;
 	item.Path = mfs_path
 	let slash = mfs_path.lastIndexOf('/')
@@ -131,18 +122,14 @@ async function provideItem(ofwhat) {
 }
 
 function splitPinFullStatus(fullstatus) {
-    let [callee, caller] = functionNameJS();
-    console.log(callee+'.input.fullstatus:',fullstatus)
-    
     let matches = fullstatus.match(/(\w+)\s+through (\w+)/)
-    console.log(callee+'.matches:',matches)
-    
+    //console.log('splitPFS.matches: ',matches)
     let pin_status
     let qm_through
     if (matches) {
 	pin_status = matches[1]
 	qm_through = matches[2]
-	console.log(callee+'.qm_through:'+qm_through )
+	console.log('through-qm: '+qm_through )
     } else {
 	pin_status = fullstatus
 	if (pin_status == 'unpinned') {
@@ -156,9 +143,7 @@ function splitPinFullStatus(fullstatus) {
 }
 
 function getPinStatus(hash) { // getdata
-    let [callee, caller] = functionNameJS();
-    console.log(callee+'.input.hash:',hash);
-    
+    let [callee, caller] = functionNameJS(); // logInfo("message !")
     let  url = api_url + 'pin/ls?arg=/ipfs/'+hash+'&type=all'
     return fetchRespNoCatch(url)
 	.then( obj => {
@@ -176,9 +161,7 @@ function getPinStatus(hash) { // getdata
 
 function togglePinStatus(status, hash) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
-    console.log(callee+'.input.status:',status);
-    console.log(callee+'.input.hash:',hash);
-    
+    console.log(callee+'.status.before:',status);
     if (status == 'unpinned' || status == 'indirect') {
 	return ipfsPinAdd(hash)
 	    .then( _ => { return getPinStatus(hash)})
@@ -192,10 +175,8 @@ function togglePinStatus(status, hash) {
     }
 }
 
-function ipfsPinAdd(hash) {
-    let [callee, caller] = functionNameJS(); // logInfo("message !")
-    console.log(callee+'.input.hash:',hash);
 
+function ipfsPinAdd(hash) {
     let url = api_url + 'pin/add?arg=/ipfs/'+hash+'&progress=true'
     return fetchGetPostText(url)
 	.then(text => { console.log('ipfsPinAdd.text',text); })
@@ -203,9 +184,6 @@ function ipfsPinAdd(hash) {
 	    }
 
 function ipfsPinRm(hash) {
-    let [callee, caller] = functionNameJS(); // logInfo("message !")
-    console.log(callee+'.input.hash:',hash);
-
     let url = api_url + 'pin/rm?arg=/ipfs/'+hash
     console.log('ipfsPinRm.url',url)
     return fetchGetPostJson(url)
@@ -215,10 +193,12 @@ function ipfsPinRm(hash) {
 	.catch(err => console.error(err, hash))
 	    } 
 
-function getContentofMfsPath(mfsPath) {
-    let [callee, caller] = functionNameJS(); // logInfo("message !")
-    console.log(callee+'.input.mfsPath:',mfsPath);
+function getContentofIpfsPath(ipfsPath) {
+    let  url = api_url + 'cat?arg='+ipfsPath
+    return fetchRespCatch(url)
+}
 
+function getContentofMfsPath(mfsPath) {
     let  url = api_url + 'files/read?arg='+mfsPath
     return fetchRespCatch(url)
 }
@@ -226,29 +206,13 @@ function getContentofMfsPath(mfsPath) {
 function saveSingleFile() {
     let [callee, caller] = functionNameJS();
 
-    let mfs_path = document.getElementById("file_pathid").innerHTML;
-    console.log(callee+'.mfs_path:',mfs_path);
+    let file_path = document.getElementById('file_pathsaveid').value;
+    console.log(callee+'.file_path:',file_path);
 
     let content = document.getElementById("file_contentid").value;
     console.log(callee+'.content:',content);
-    
-    ipfsWriteText(mfs_path, content)
-	.then (console.log(callee+'.mfs_path updated'));
-}
-    
-async function asyncSaveSingleFile() {
-    let [callee, caller] = functionNameJS();
+    return ipfsWriteText(file_path, content) // v0.6.0 truncate works !!!
+	.then ( _ => { console.log(callee+'file_path: '+file_path+' updated')})
+	.catch(err => console.error(err))
+	    } 
 
-    let cur_item = await provideItem('curItem');
-    console.log(callee+'.cur_item:',cur_item);
-    
-    let mfs_path = cur_item.Path;
-    console.log(callee+'.mfs_path:',mfs_path);
-    
-    let content = document.getElementById("file_contentid").value;
-    console.log(callee+'.content:',content);
-    
-    ipfsWriteContent(mfs_path, content);
-    console.log(callee+'.mfs_path updated');
-}
-    
