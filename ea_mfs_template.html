@@ -113,322 +113,322 @@
      display();
 
      function action(what) {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   console.log(callee+': '+what);
-   switch (what) {
-       case 'Upload & Display':
-     uploadFile()
-         .then( _ => { display() });
-     // /!\ do not do .then(display()) !
-     // or uploadFile().then(display);
-     break;
-       case 'Clear & Display':
-       default: 
-     stored['curItem']=null;
-     display();
-   }
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 console.log(callee+': '+what);
+	 switch (what) {
+	     case 'Upload & Display':
+		 uploadFile()
+		     .then( _ => { display() });
+		 // /!\ do not do .then(display()) !
+		 // or uploadFile().then(display);
+		 break;
+	     case 'Clear & Display':
+	     default: 
+		 stored['curItem']=null;
+		 display();
+	 }
      }
 
      function copyFile(item) {
-   let [callee, caller] = functionNameJS();
-   console.log(callee+'.input.item:',item);
-   
-   var from = item.Path;
-   var target = item.input.value
-   console.log(callee+'.target:',target);
+	 let [callee, caller] = functionNameJS();
+	 console.log(callee+'.input.item:',item);
+	 
+	 var from = item.Path;
+	 var target = item.input.value
+	 console.log(callee+'.target:',target);
 
-   if ( from.charAt(0) != '/') {
-       from = '/ipfs/' + from;
-   }
-   
-   var url = api_url + 'files/cp?arg='+from+'&arg='+target
-   console.log(callee+'.url:',url);
-   return fetch(url, { method: "POST", mode: 'cors'})
-       .then (resp => {console.log(callee+'.resp',resp)})
-       .catch(logError)
+	 if ( from.charAt(0) != '/') {
+	     from = '/ipfs/' + from;
+	 }
+	 
+	 var url = api_url + 'files/cp?arg='+from+'&arg='+target
+	 console.log(callee+'.url:',url);
+	 return fetch(url, { method: "POST", mode: 'cors'})
+	     .then (resp => {console.log(callee+'.resp',resp)})
+	     .catch(logError)
      }
 
      function removeFile (item) {
-   let [callee, caller] = functionNameJS();
-   console.log(callee+'.input.item:',item);
+	 let [callee, caller] = functionNameJS();
+	 console.log(callee+'.input.item:',item);
 
-   let mfs_path = item.Path;
-   console.log(callee+'.mfs_path:',mfs_path);
+	 let mfs_path = item.Path;
+	 console.log(callee+'.mfs_path:',mfs_path);
 
-   var url = api_url + 'files/rm?arg='+mfs_path+'&force=true'
-   console.log(callee+'.url:',url);
-   return fetch(url, { method: "POST", mode: 'cors'})
-       .then (resp => {validateStatus(resp)})
-       .then (resp => {console.log(callee+'.resp',resp)})
-       .catch(err => logError(err))
+	 var url = api_url + 'files/rm?arg='+mfs_path+'&force=true'
+	 console.log(callee+'.url:',url);
+	 return fetch(url, { method: "POST", mode: 'cors'})
+	     .then (resp => {validateStatus(resp)})
+	     .then (resp => {console.log(callee+'.resp',resp)})
+	     .catch(err => logError(err))
      }  
      
      function preFillFileName(obj) {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   console.log(obj.files)
-   let mfs_path = document.getElementById('mfs_pathinputid').value
-   let file_addpath = mfs_path + obj.files[0].name
-   document.getElementById('file_addpathid').value = file_addpath
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 console.log(obj.files)
+	 let mfs_path = document.getElementById('mfs_pathinputid').value
+	 let file_addpath = mfs_path + obj.files[0].name
+	 document.getElementById('file_addpathid').value = file_addpath
      }
 
      async function uploadFile() {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   let file_addpath = document.getElementById('file_addpathid').value;
-   let file = document.getElementById('FakePathId').files[0]
-   let content = await getFileContent(file);
-   console.log(callee+'.file_addpath:',file_addpath)
-   console.log(callee+'.file:',file)
-   console.log(callee+'content:',content)
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 let file_addpath = document.getElementById('file_addpathid').value;
+	 let file = document.getElementById('FakePathId').files[0]
+	 let content = await getFileContent(file);
+	 console.log(callee+'.file_addpath:',file_addpath)
+	 console.log(callee+'.file:',file)
+	 console.log(callee+'content:',content)
 
-   let hash = await ipfsWriteBinary(file_addpath, content)
-   console.log(callee+'.write-completed:', hash);
-   return hash;
+	 let hash = await ipfsWriteBinary(file_addpath, content)
+	 console.log(callee+'.write-completed:', hash);
+	 return hash;
      }
 
      function getFileContent(file) {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   let reader = new FileReader();
-   reader.readAsBinaryString(file)
-   
-   return load(reader)
-       .then( event => {
-     console.log(callee+'.event:',event)
-     let content = event.target.result;
-     return content
-       })
-       .catch(console.error)
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 let reader = new FileReader();
+	 reader.readAsBinaryString(file)
+	 
+	 return load(reader)
+	     .then( event => {
+		 console.log(callee+'.event:',event)
+		 let content = event.target.result;
+		 return content
+	     })
+	     .catch(console.error)
 
      }
 
      async function display() {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   console.error(callee+'.info: entered');
-   let cur_item = await provideItem('curItem');
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 console.error(callee+'.info: entered');
+	 let cur_item = await provideItem('curItem');
 
-   if (cur_item.Type == 'Directory') {
-       display_directory_content(cur_item);
-   } else if (cur_item.Type == 'File') {
-       display_file_content(cur_item);
-   } else {
-       console.error(callee+'.cur_item.Type:',cur_item.Type);
-   }
+	 if (cur_item.Type == 'Directory') {
+	     display_directory_content(cur_item);
+	 } else if (cur_item.Type == 'File') {
+	     display_file_content(cur_item);
+	 } else {
+	     console.error(callee+'.cur_item.Type:',cur_item.Type);
+	 }
 
      }
 
-async function display_directory_content(cur_item) {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   let mfs_path = cur_item.Path
+     async function display_directory_content(cur_item) {
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 let mfs_path = cur_item.Path
 
 
-      let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
-      if (immutable) { // special reduction for /ipfs/Qm1234/..
-         // mfs_path = root + mfs_path
-         // root = /ipfs%2FQm or / 
-         mfs_path = mfs_path.replace(new RegExp('[^/]+/\.\./'),'') // TBD
-            mfs_path = mfs_path.replace(new RegExp('/ip[fn]s/$'),'/')
-      } else {
-         mfs_path = mfs_path.replace(new RegExp('[^/]+/\.\./'),'')
-      }
-   let table = await fetch_directory_content(mfs_path);
+	 let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
+	 if (immutable) { // special reduction for /ipfs/Qm1234/..
+             // mfs_path = root + mfs_path
+             // root = /ipfs%2FQm or / 
+             mfs_path = mfs_path.replace(new RegExp('[^/]+/\.\./'),'') // TBD
+             mfs_path = mfs_path.replace(new RegExp('/ip[fn]s/$'),'/')
+	 } else {
+             mfs_path = mfs_path.replace(new RegExp('[^/]+/\.\./'),'')
+	 }
+	 let table = await fetch_directory_content(mfs_path);
 
-   let table_of_content = table.TOC
-      let te = document.getElementById('directory_contentid')
+	 let table_of_content = table.TOC
+	 let te = document.getElementById('directory_contentid')
 
-      document.getElementById('directory_pathid').innerHTML = mfs_path
+	 document.getElementById('directory_pathid').innerHTML = mfs_path
 
-      clear_display_directory_content();
+	 clear_display_directory_content();
 
-   for (item of table_of_content) {
-      console.log('display_directory_content.item:',item)
+	 for (item of table_of_content) {
+	     console.log('display_directory_content.item:',item)
 
-         item.DirName = mfs_path; 
-      let filename = item.Name
-         let hash = item.Hash
-         let type = item.Type
-         let size = item.Size
+             item.DirName = mfs_path; 
+	     let filename = item.Name
+             let hash = item.Hash
+             let type = item.Type
+             let size = item.Size
 
-         item.FullStatus = await getPinStatus(hash)
+             item.FullStatus = await getPinStatus(hash)
 
-         if (type == 'Directory') { filename += '/'; } // append a trailing / to directories
-      item.Path = mfs_path + filename;
+             if (type == 'Directory') { filename += '/'; } // append a trailing / to directories
+	     item.Path = mfs_path + filename;
 
-      console.log('row: ',item.FullStatus,filename,hash,type);
-      display_row(item); // /!\ problem w/ promise ???
-   }
-   console.log('table: '+ te.rows.length + ' rows')
+	     console.log('row: ',item.FullStatus,filename,hash,type);
+	     display_row(item); // /!\ problem w/ promise ???
+	 }
+	 console.log('table: '+ te.rows.length + ' rows')
 
-}
+     }
 
-function clear_display_directory_content() {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   let e = document.getElementById('directory_contentid');
-   console.log(callee+'.template_row:',e.rows[2])
-      e.rows[2].style.display='none'
+     function clear_display_directory_content() {
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 let e = document.getElementById('directory_contentid');
+	 console.log(callee+'.template_row:',e.rows[2])
+	 e.rows[2].style.display='none'
 
-      for (i = e.rows.length-1; i > 2; i--) {
-         e.deleteRow(i)
-      }
-   //console.log('nrow after delete:',e.rows.length)
-}
+	 for (i = e.rows.length-1; i > 2; i--) {
+             e.deleteRow(i)
+	 }
+	 //console.log('nrow after delete:',e.rows.length)
+     }
 
-function display_row(item) {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
-   console.log(callee+'.input.item:',item)
-      let e = document.getElementById('directory_contentid');
-   let last = e.rows.length-1
-      let row = e.rows[last];
-   let newrow = e.insertRow(-1); // insert in last position
-   newrow.innerHTML = row.innerHTML; // copy previous row content
-   newrow.setAttribute('id',item.Hash)
+     function display_row(item) {
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 console.log(callee+'.input.item:',item)
+	 let e = document.getElementById('directory_contentid');
+	 let last = e.rows.length-1
+	 let row = e.rows[last];
+	 let newrow = e.insertRow(-1); // insert in last position
+	 newrow.innerHTML = row.innerHTML; // copy previous row content
+	 newrow.setAttribute('id',item.Hash)
 
-      display_pin(item,newrow);
+	 display_pin(item,newrow);
 
-   newrow.getElementsByClassName('file_type')[0].innerHTML = item.Type; // typenames[item.Type];
-   let file_name_click=newrow.getElementsByClassName('file_name_click')[0]
-      file_name_click.onclick = function() {
-         document.getElementById('mfs_pathinputid').value = item.Path
-            //stored['QmHash'] = item.Hash
-            stored['curItem'] = item
-            display()
-      }
-   file_name_click.innerHTML = item.Name;
+	 newrow.getElementsByClassName('file_type')[0].innerHTML = item.Type; // typenames[item.Type];
+	 let file_name_click=newrow.getElementsByClassName('file_name_click')[0]
+	 file_name_click.onclick = function() {
+             document.getElementById('mfs_pathinputid').value = item.Path
+             //stored['QmHash'] = item.Hash
+             stored['curItem'] = item
+             display()
+	 }
+	 file_name_click.innerHTML = item.Name;
 
-   let file_hash_link=newrow.getElementsByClassName('file_hash_link')[0]
-      file_hash_link.href = 'http://localhost:8080/ipfs/'+item.Hash
-      file_hash_link.innerHTML = item.Hash;
+	 let file_hash_link=newrow.getElementsByClassName('file_hash_link')[0]
+	 file_hash_link.href = 'http://localhost:8080/ipfs/'+item.Hash
+	 file_hash_link.innerHTML = item.Hash;
 
-   if (item.Name != '..') {
-      let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
-         file_remove_click.onclick = function () {
-            removeFile(item);
-            display();
-         }
+	 if (item.Name != '..') {
+	     let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
+             file_remove_click.onclick = function () {
+		 removeFile(item);
+		 display();
+             }
 
-      let file_copy_path = newrow.getElementsByClassName('file_target_class')[0]
-         item.input = file_copy_path 
-         let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
-         file_copy_click.style.display = ''
-         console.log(callee+'.file_copy_click:',file_copy_click);
-      file_copy_click.onclick = function () {
-         copyFile(item);
-         display();
-      }
+	     let file_copy_path = newrow.getElementsByClassName('file_target_class')[0]
+             item.input = file_copy_path 
+             let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
+             file_copy_click.style.display = ''
+             console.log(callee+'.file_copy_click:',file_copy_click);
+	     file_copy_click.onclick = function () {
+		 copyFile(item);
+		 display();
+	     }
 
-   } else {
-   let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
-   let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
-    file_copy_click.style.display = 'none'
-  }
+	 } else {
+	     let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
+	     let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
+	     file_copy_click.style.display = 'none'
+	 }
 
-   console.log(callee+'.newrow: ',newrow);
-}
+	 console.log(callee+'.newrow: ',newrow);
+     }
 
      function display_pin(item,row) {
-   let [callee, caller] = functionNameJS(); // logInfo("message !")
+	 let [callee, caller] = functionNameJS(); // logInfo("message !")
 
-   let [pin_status,pin_through] = splitPinFullStatus(item.FullStatus)
+	 let [pin_status,pin_through] = splitPinFullStatus(item.FullStatus)
 
-   let btn_pin_status_link = row.getElementsByClassName('pin_status_link')[0]
-   let status_span_el = row.getElementsByClassName('pin_status_span')[0]
+	 let btn_pin_status_link = row.getElementsByClassName('pin_status_link')[0]
+	 let status_span_el = row.getElementsByClassName('pin_status_span')[0]
 
-   if (pin_status == 'indirect') {
-       btn_pin_status_link.onclick = function () {
-     let new_path = '/ipfs/'+pin_through+'/';
-     document.getElementById('mfs_pathinputid').value = new_path
-     stored['curItem'] = { Path:new_path, Hash:pin_through, Type:'Directory', Size:0, DirName:'/',Name:new_path }
-     display()
-       }
-       btn_pin_status_link.innerHTML = pin_through.substr(0,9);
-       //btn_pin_status_link.href = 'http://localhost:8080/ipfs/'+pin_through
-       //btn_pin_status_link.deleteAttribute('href')
+	 if (pin_status == 'indirect') {
+	     btn_pin_status_link.onclick = function () {
+		 let new_path = '/ipfs/'+pin_through+'/';
+		 document.getElementById('mfs_pathinputid').value = new_path
+		 stored['curItem'] = { Path:new_path, Hash:pin_through, Type:'Directory', Size:0, DirName:'/',Name:new_path }
+		 display()
+	     }
+	     btn_pin_status_link.innerHTML = pin_through.substr(0,9);
+	     //btn_pin_status_link.href = 'http://localhost:8080/ipfs/'+pin_through
+	     //btn_pin_status_link.deleteAttribute('href')
 
-       console.log(callee+'.btn_pin_status_link:',btn_pin_status_link);
+	     console.log(callee+'.btn_pin_status_link:',btn_pin_status_link);
 
-       status_span_el.style.display = ''; // display it !
-   } else {
-       status_span_el.style.display = 'none'
-   }
+	     status_span_el.style.display = ''; // display it !
+	 } else {
+	     status_span_el.style.display = 'none'
+	 }
 
-   let button = row.getElementsByClassName('pin_status_click')[0]
-   button.innerHTML = pin_status
-   button.setAttribute('name', item.Hash) // update QmHash's name 
+	 let button = row.getElementsByClassName('pin_status_click')[0]
+	 button.innerHTML = pin_status
+	 button.setAttribute('name', item.Hash) // update QmHash's name 
 
-   button.onclick = function() {
-       let [callee, caller] = functionNameJS();
-       let [cur_pin_status,pin_through] = splitPinFullStatus(item.FullStatus)
-       console.log(callee+'.item.FullStatus:',item.FullStatus);
-       console.log(callee+'.cur_pin_status:',cur_pin_status);
+	 button.onclick = function() {
+	     let [callee, caller] = functionNameJS();
+	     let [cur_pin_status,pin_through] = splitPinFullStatus(item.FullStatus)
+	     console.log(callee+'.item.FullStatus:',item.FullStatus);
+	     console.log(callee+'.cur_pin_status:',cur_pin_status);
 
-       return togglePinStatus(cur_pin_status,item.Hash)
-     .then( full_status => {  
-         console.log(callee+'.full_status: ',full_status);
-         item.FullStatus = full_status
-         let [new_pin_status,qm_through] = splitPinFullStatus(full_status) // update after toggle !
+	     return togglePinStatus(cur_pin_status,item.Hash)
+		 .then( full_status => {  
+		     console.log(callee+'.full_status: ',full_status);
+		     item.FullStatus = full_status
+		     let [new_pin_status,qm_through] = splitPinFullStatus(full_status) // update after toggle !
 
-         let elems = document.getElementsByName(item.Hash)
-         console.log(callee+'.elems: ',elems)
-         for (let e of elems) {
-       e.innerHTML = new_pin_status
-         }
-         if (new_pin_status == 'indirect') {
-       btn_pin_status_link.onclick = function () {
-           let new_path = '/ipfs/'+qm_through+'/';
-           document.getElementById('mfs_pathinputid').value = new_path
-           stored['curItem'] = { Path:new_path, Hash:qm_through, Type:'Directory', Size:0, DirName:'/',Name:new_path }
-           display()
-           
-       }
-       console.log(callee+'.btn_pin_status_link: ',btn_pin_status_link);
-       btn_pin_status_link.innerHTML = qm_through.substr(0,9);
-       //btn_pin_status_link.href = 'http://localhost:8080/ipfs/'+qm_through
-       status_span_el.style.display = ''; // display it !
-         }
+		     let elems = document.getElementsByName(item.Hash)
+		     console.log(callee+'.elems: ',elems)
+		     for (let e of elems) {
+			 e.innerHTML = new_pin_status
+		     }
+		     if (new_pin_status == 'indirect') {
+			 btn_pin_status_link.onclick = function () {
+			     let new_path = '/ipfs/'+qm_through+'/';
+			     document.getElementById('mfs_pathinputid').value = new_path
+			     stored['curItem'] = { Path:new_path, Hash:qm_through, Type:'Directory', Size:0, DirName:'/',Name:new_path }
+			     display()
+			     
+			 }
+			 console.log(callee+'.btn_pin_status_link: ',btn_pin_status_link);
+			 btn_pin_status_link.innerHTML = qm_through.substr(0,9);
+			 //btn_pin_status_link.href = 'http://localhost:8080/ipfs/'+qm_through
+			 status_span_el.style.display = ''; // display it !
+		     }
 
-     })
+		 })
 
-   }
+	 }
 
      }
 
      async function display_file_content() {
-   let [callee, caller] = functionNameJS();
+	 let [callee, caller] = functionNameJS();
 
-   console.log(callee+'.stored[curItem]: ',stored['curItem'])
+	 console.log(callee+'.stored[curItem]: ',stored['curItem'])
 
-   let cur_item = await provideItem('curItem')
+	 let cur_item = await provideItem('curItem')
 
-   console.log(callee+'.cur_item: ',cur_item)
-   let cur_path = cur_item.Path
-   let content;
-   if ( cur_path.match(new RegExp('/ip[fn]s/')) ) {
-       content = await getContentofIpfsPath(cur_path);
-   } else {
-       content = await getContentofMfsPath(cur_path);
-   }
+	 console.log(callee+'.cur_item: ',cur_item)
+	 let cur_path = cur_item.Path
+	 let content;
+	 if ( cur_path.match(new RegExp('/ip[fn]s/')) ) {
+	     content = await getContentofIpfsPath(cur_path);
+	 } else {
+	     content = await getContentofMfsPath(cur_path);
+	 }
 
 
-   let [pin_status,pin_through] = splitPinFullStatus(cur_item.FullStatus)
-   let hash = cur_item.Hash
+	 let [pin_status,pin_through] = splitPinFullStatus(cur_item.FullStatus)
+	 let hash = cur_item.Hash
 
-   console.log(callee+'.cur_item.Name: ',cur_item.Name)
-   console.log(callee+'.cur_item.FullStatus: ',cur_item.FullStatus)
+	 console.log(callee+'.cur_item.Name: ',cur_item.Name)
+	 console.log(callee+'.cur_item.FullStatus: ',cur_item.FullStatus)
 
-   document.getElementById('file_pathid').innerHTML = cur_item.Path
-   document.getElementById('file_pathsaveid').value = cur_item.Path
+	 document.getElementById('file_pathid').innerHTML = cur_item.Path
+	 document.getElementById('file_pathsaveid').value = cur_item.Path
 
-   let row = document.getElementById('file_attributesid').rows[2];
-   console.log(callee+'.row: ',row);
+	 let row = document.getElementById('file_attributesid').rows[2];
+	 console.log(callee+'.row: ',row);
 
-   let cell = row.getElementsByClassName('pin_status_cell')[0]
-   cell.setAttribute('name', hash); // update attribute name w/ QmHash's value
-   cell.innerHTML = pin_status;
+	 let cell = row.getElementsByClassName('pin_status_cell')[0]
+	 cell.setAttribute('name', hash); // update attribute name w/ QmHash's value
+	 cell.innerHTML = pin_status;
 
-   let link = row.getElementsByClassName('file_hash_link')[0]
-   link.innerHTML = hash
-   link.href = 'http://127.0.0.1:8080/ipfs/'+hash
-   console.log(callee+'.link: ',link);
+	 let link = row.getElementsByClassName('file_hash_link')[0]
+	 link.innerHTML = hash
+	 link.href = 'http://127.0.0.1:8080/ipfs/'+hash
+	 console.log(callee+'.link: ',link);
 
-   document.getElementById('file_contentid').value = content;
+	 document.getElementById('file_contentid').value = content;
      }
 
 
