@@ -23,7 +23,10 @@
 	<div id=inputdivid>
 	    <h2>Inputs</h2>
 	    mfs: <input type=text id=mfs_pathinputid placeholder="mfs_path" size=56 value="/">
-	    <button type=button onclick="action('Clear & Display')">display</button>
+	    <button type=button onclick="action('Clear & Display')">display</button><br>
+	    Create directory <input type="text" id="InputTextCreateDirectoryId">
+    <input type="button" onclick="createDirectory()" value="Create Directory"><br>
+
 	</div>
 	<hr>
 	<div id=adddivid>
@@ -127,6 +130,32 @@
 		 stored['curItem']=null;
 		 display();
 	 }
+     }
+
+     function createDirectory() {
+	 let [callee, caller] = functionNameJS();
+	 console.log(callee+'.entering');
+	 
+	 let msfDirPath = document.getElementById('mfs_pathinputid').value;
+	 console.log(callee+'.mfsDirPath:',msfDirPath);
+
+	 let mfsDirName = document.getElementById('InputTextCreateDirectoryId').value;
+	 console.log(callee+'.mfsDirName:',mfsDirName);
+	 
+	 var path_url = msfDirPath + mfsDirName;
+	 console.log(callee+'.path_url:',path_url);
+	 
+	 var url = api_url + 'files/mkdir?arg=' + path_url;
+	 console.log(callee+'.url:', url);
+	 
+	 let form = new FormData();
+	 form.append('file', path_url)   
+	 const result = fetch(url, {
+	     method: "POST",
+	     mode: 'cors',
+	     body: form
+	 })
+	 display();
      }
 
      function copyFile(item) {
