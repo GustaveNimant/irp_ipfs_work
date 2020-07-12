@@ -80,7 +80,7 @@ function fetch_directory_content(mfs_path) {
 	    let parent_item = { Name:'..', Type:'Directory', Size:0, Hash:parent_hash, Path:mfs_path }
 	    console.log(callee+'.parent_item: ',parent_item);
 	    table_of_content.unshift(parent_item)
-	    console.log(callee+'.TOC:',table_of_content);
+	    console.log(callee+'.table_of_content:',table_of_content);
 	    return { "dirname":mfs_path, "parent":parent_hash, "TOC":table_of_content };
 
 
@@ -98,8 +98,10 @@ function getHashofMfsPath(mfs_path) {
 
 async function provideItem(ofwhat) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
+    console.log(callee+'.ofwhat',ofwhat);
+    
     if (typeof(stored[ofwhat]) != 'undefined' && stored[ofwhat] != null) {  
-	console.log(callee+'.retrieve('+ofwhat+'):',stored[ofwhat]);
+	console.log(callee+'.stored.retrieve('+ofwhat+'):',stored[ofwhat]);
 	return stored[ofwhat]
     } else if (ofwhat == 'curItem') {
 	// created (build)
@@ -112,7 +114,7 @@ async function provideItem(ofwhat) {
 	let slash = mfs_path.lastIndexOf('/')
 	item.DirName = mfs_path.substring(0,slash+1);
 	item.Name = mfs_path.substr(slash+1);
-	console.log(callee+'.item:',item);
+	console.log(callee+'.stored.curItem.item:',item);
 	stored[ofwhat] = item;
 	return item;
     } else {

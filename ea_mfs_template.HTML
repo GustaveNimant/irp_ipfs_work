@@ -217,8 +217,8 @@
 
      async function display_directory_content(cur_item) {
 	 let [callee, caller] = functionNameJS(); // logInfo("message !")
-	 console.log(callee+'.input.cur_item:',cur_item)
 	 let mfs_path = cur_item.Path
+
 
 	 let immutable = mfs_path.match(new RegExp('/ip[fn]s'))
 	 if (immutable) { // special reduction for /ipfs/Qm1234/..
@@ -229,7 +229,6 @@
 	 } else {
              mfs_path = mfs_path.replace(new RegExp('[^/]+/\.\./'),'')
 	 }
-	 console.log(callee+'.mfs_path:',mfs_path)
 	 let table = await fetch_directory_content(mfs_path);
 
 	 let table_of_content = table.TOC
@@ -275,17 +274,13 @@
      function display_row(item) {
 	 let [callee, caller] = functionNameJS(); // logInfo("message !")
 	 console.log(callee+'.input.item:',item)
-
 	 let e = document.getElementById('directory_contentid');
-	 console.log(callee+'.directory_contentid.e:',e)
 	 let last = e.rows.length-1
 	 let row = e.rows[last];
-	 console.log(callee+'.last.row:',row)
 	 let newrow = e.insertRow(-1); // insert in last position
-	 console.log(callee+'.insert.newrow:',newrow)
 	 newrow.innerHTML = row.innerHTML; // copy previous row content
 
-	 //	 newrow.setAttribute('id',item.Hash) // FCC not necessary
+// FCC	 newrow.setAttribute('id',item.Hash)
 
 	 display_pin(item,newrow);
 
@@ -315,15 +310,14 @@
 
 	     let file_copy_path = newrow.getElementsByClassName('file_target_class')[0]
              console.log(callee+'.file_copy_path:',file_copy_path);
-
-             item.input = file_copy_path // <= FCC input added to item
+             item.input = file_copy_path 
 
              let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
              file_copy_click.style.display = ''
              console.log(callee+'.file_copy_click:',file_copy_click);
 	     file_copy_click.onclick = function () {
 		 copyFile(item);
-		 display(); // Clean all rows
+		 display();
 	     }
 
 	 } else {
@@ -334,7 +328,7 @@
 	     file_copy_click.style.display = 'none'
 	 }
 
-	 console.log(callee+'.result.newrow: ',newrow);
+	 console.log(callee+'.newrow: ',newrow);
      }
 
      function display_pin(item,row) {
