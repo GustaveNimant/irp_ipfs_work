@@ -51,8 +51,8 @@
 			<td class=file_name><a class=file_name_click href=#>fileName</a></td>
 			<td class=file_hash><a class=file_hash_link href=#>QmHash</a></td>
 			<td class=file_remove><button>Remove</button></td>
-			<td class=file_copy><button class=file_copy_click>Copy</button>
-			    to <input type="text" class="file_target_class" value="" placeholder="IPMS Path">
+			<td class=file_copy><button class=file_copy_click>Copy to</button>
+			    <input type="text" class="file_target_class" value="" placeholder="IPMS Path">
 			</td>
 		    </tr>
 		</tbody>
@@ -331,13 +331,17 @@
 	 file_hash_link.href = 'http://localhost:8080/ipfs/'+item.Hash
 	 file_hash_link.innerHTML = item.Hash;
 
+	 let file_target_class = newrow.getElementsByClassName('file_target_class')[0];
 	 if (item.Name != '..') {
 	     let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
              console.log(callee+'.file_remove_click:',file_remove_click);
+             file_remove_click.style.display = ''
              file_remove_click.onclick = function () {
 		 removeFile(item);
 		 display();
              }
+
+	     file_target_class.style.display = ''
 
 	     let file_copy_path = newrow.getElementsByClassName('file_target_class')[0]
              console.log(callee+'.file_copy_path:',file_copy_path);
@@ -355,6 +359,9 @@
 	 } else {
 	     let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
              console.log(callee+'.file_remove_click:',file_remove_click);
+	     file_remove_click.style.display = 'none'
+	     file_target_class.style.display = 'none'
+
 	     let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
              console.log(callee+'.file_copy_click:',file_copy_click);
 	     file_copy_click.style.display = 'none'
