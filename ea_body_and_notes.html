@@ -1,54 +1,63 @@
-    <body>
-	<div id=inputdivid>
-	    <h2>Inputs</h2>
-	    mfs: <input type=text id=mfs_pathinputid placeholder="mfs_path" size=56 value="/">
-	    <button type=button onclick="action('Clear & Display')">display</button>
-	</div>
-	<hr>
-	<div id=adddivid>
-	    add: <input type="file"  name="filepath" id="FakePathId" onchange="preFillFileName(this)"> add under name
-	    <input type="text"  name="filepath" value="" placeholder="mfs file path" id="file_addpathid">
-	    <button name=add onclick="action('Upload & Display')">OK</button>
-	</div>
-	<hr>
-	<div id=outputdivid>
-	    <h2>Outputs</h2>
-	    <table id=directory_contentid border=1>
-		<thead>
-		    <tr><th colspan=4><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
-		    <tr><th>pin</th><th>type</th><th>name</th><th>hash</th></tr>
-		</thead>
-		<tbody>
-		    <tr id=dir_row0id class=ls_row">
-			<td class="pin_status">
-			    <button class="pin_status_click" name="QmHash" onclick="alert('clicked')">pinStatus</button>
-			    <span class="pin_status_span"> through <a href="#" class=pin_status_link>QmHash</a></span></td>
-			<td class=file_type>fileType</td>
-			<td class=file_name><a class=file_name_click href=#>fileName</a></td>
-			<td class=file_hash><a class=file_hash_link href=#>QmHash</a></td>
+<body>
+
+    <div id=inputdivid>
+	<h2>Inputs</h2>
+	mfs: <input type="text" id="mfs_pathinputid" placeholder="mfs_path" size=56 value="/">
+	<button type=button onclick="action('Clear & Display')">display</button><br>
+	Create directory <input type="text" id="InputTextCreateDirectoryId">
+	<input type="button" onclick="createDirectory()" value="Create Directory"><br>
+
+    </div>
+    <hr>
+    <div id=adddivid>
+	add: <input type="file"  name="filepath" id="FakePathId" onchange="preFillFileName(this)"> add under name
+	<input type="text" name="filepath" value="" placeholder="mfs file path" id="file_addpathid">
+	<button name=add onclick="action('Upload & Display')">OK</button>
+    </div>
+    <hr>
+    <div id=outputdivid>
+	<h2>Outputs</h2>
+	<table id=directory_contentid border=1>
+	    <thead>
+		<tr><th colspan=6><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
+		<tr><th>pin</th><th>type</th><th>name</th><th>hash</th><th>remove</th><th>copy</th></tr>
+	    </thead>
+	    <tbody>
+		<tr id=dir_row0id class=ls_row">
+		    <td class="pin_status">
+			<button class="pin_status_click" name="QmHash" onclick="alert('clicked')">pinStatus</button>
+			<span class="pin_status_span"> through <a href="#" class=pin_status_link>QmHash</a></span></td>
+		    <td class=file_type>fileType</td>
+		    <td class=file_name><a class=file_name_click href=#>fileName</a></td>
+		    <td class=file_hash><a class=file_hash_link href=#>QmHash</a></td>
+		    <td class=file_remove><button>Remove</button></td>
+		    <td class=file_copy><button class=file_copy_click>Copy</button>
+			to <input type="text" class="file_target_class" value="" placeholder="IPMS Path">
+		    </td>
+		</tr>
+	    </tbody>
+	</table>
+    </div>
+    <hr>
+    <div>
+	<table id=file_attributesid border=1>
+	    <tr><th colspan=2><h4 id="file_pathid" class="whiteOnDarkBlue">filepath</h4></th>
+		<tr><th>pin</th><th>hash</th>
+		    <tr id=file_row0id class=file_row_class>
+			<td class="pin_status_cell" name="mHash">unpinned</td>
+			<td class=file_hash_cell><a class=file_hash_link href=#>Qm12345</a></td>
 		    </tr>
-		</tbody>
-	    </table>
-	</div>
-	<hr>
-	<div>
-	    <table id=file_attributesid border=1>
-		<tr><th colspan=2><h4 id="file_pathid" class="whiteOnDarkBlue">filepath</h4></th>
-		    <tr><th>pin</th><th>hash</th>
-			<tr id=file_row0id class=file_row_class>
-			    <td class="pin_status_cell" name="mHash">unpinned</td>
-			    <td class=file_hash_cell><a class=file_hash_link href=#>Qm12345</a></td>
-			</tr>
-	    </table>
-	    content:<br><textarea id=file_contentid>file's content</textarea>
-	    <br>
-	    save as <input id=file_pathsaveid name=pathname type=text value="/tmp/myfile.txt" placeholder="file-location-to-be-saved-to">
-	    <button onclick="saveSingleFile()">save</button> 
-	</div>
+	</table>
+	content:<br><textarea id=file_contentid>file's content</textarea>
+	<br>
+	save as <input id=file_pathsaveid name=pathname type=text value="/tmp/myfile.txt" placeholder="file-location-to-be-saved-to">
+	<button onclick="saveSingleFile()">save</button> 
+    </div>
 
-    </body>
+</body>
 
-	fhlink => file_hash_link
+
+fhlink => file_hash_link
 	btnlink => button_pin_status_link
 	button => button_pin_status_click > button_pin_status_toggle
 

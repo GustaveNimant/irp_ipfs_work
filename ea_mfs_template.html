@@ -147,15 +147,23 @@
 	 
 	 var url = api_url + 'files/mkdir?arg=' + path_url;
 	 console.log(callee+'.url:', url);
-	 
-	 let form = new FormData();
-	 form.append('file', path_url)   
-	 const result = fetch(url, {
-	     method: "POST",
-	     mode: 'cors',
-	     body: form
-	 })
-	 display();
+
+	 return fetch(url, { method: "POST", mode: 'cors'})
+	     .then (resp => {console.log(callee+'.resp',resp)})
+	     .then(display)
+	     .catch(logError)
+
+	 /* FCC ???
+	    let form = new FormData();
+	    form.append('file', path_url)   
+	    const result = fetch(url, {
+	    method: "POST",
+	    mode: 'cors',
+	    body: form
+	    })
+	    console.log(callee+'.form:', form);
+	    display();
+	  */
      }
 
      function copyFile(item) {
