@@ -238,7 +238,6 @@
 	 } else {
 	     console.error(callee+'.cur_item.Type:',cur_item.Type);
 	 }
-
      }
 
      async function display_directory_content(cur_item) {
@@ -257,6 +256,7 @@
 	 }
 	 console.log(callee+'.mfs_path:',mfs_path)
 	 let table = await fetch_directory_content(mfs_path);
+	 console.log(callee+'.table:',table)
 
 	 let table_of_content = table.TOC
 	 let te = document.getElementById('directory_contentid')
@@ -266,7 +266,7 @@
 	 clear_display_directory_content();
 
 	 for (item of table_of_content) {
-	     console.log('display_directory_content.item:',item)
+	     console.log(callee+'.item:',item)
 
              item.DirName = mfs_path; 
 	     let filename = item.Name
@@ -279,7 +279,8 @@
              if (type == 'Directory') { filename += '/'; } // append a trailing / to directories
 	     item.Path = mfs_path + filename;
 
-	     console.log('row: ',item.FullStatus,filename,hash,type);
+	     console.log(callee+'row: ',item.FullStatus,filename,hash,type);
+	     console.log(callee+'.result.item:',item)
 	     display_row(item); // /!\ problem w/ promise ???
 	 }
 	 console.log('table: '+ te.rows.length + ' rows')
@@ -288,29 +289,30 @@
 
      function clear_display_directory_content() {
 	 let [callee, caller] = functionNameJS(); // logInfo("message !")
-	 let e = document.getElementById('directory_contentid');
-	 console.log(callee+'.template_row:',e.rows[2])
-	 e.rows[2].style.display='none'
+	 let table = document.getElementById('directory_contentid');
+	 console.log(callee+'.template_row:',table.rows[2])
+	 table.rows[2].style.display='none'
 
-	 for (i = e.rows.length-1; i > 2; i--) {
-             e.deleteRow(i)
+	 for (i = table.rows.length-1; i > 2; i--) {
+             table.deleteRow(i)
 	 }
-	 //console.log('nrow after delete:',e.rows.length)
+	 //console.log('nrow after delete:',table.rows.length)
      }
 
      function display_row(item) {
 	 let [callee, caller] = functionNameJS(); // logInfo("message !")
 	 console.log(callee+'.input.item:',item)
 
-	 let e = document.getElementById('directory_contentid');
-	 console.log(callee+'.directory_contentid.e:',e)
-	 let last = e.rows.length-1
-	 let row = e.rows[last];
+	 let table = document.getElementById('directory_contentid');
+	 console.log(callee+'.directory_contentid.table:',table)
+	 let last = table.rows.length-1
+	 let row = table.rows[last];
 	 console.log(callee+'.last.row:',row)
-	 let newrow = e.insertRow(-1); // insert in last position
+	 let newrow = table.insertRow(-1); // insert in last position
 	 console.log(callee+'.insert.newrow:',newrow)
 	 newrow.innerHTML = row.innerHTML; // copy previous row content
-
+	 console.log(callee+'.newrow:',newrow)
+	 
 	 //	 newrow.setAttribute('id',item.Hash) // FCC not necessary
 
 	 display_pin(item,newrow);
@@ -324,6 +326,7 @@
              stored['curItem'] = item
              display()
 	 }
+
 	 file_name_click.innerHTML = item.Name;
 
 	 let file_hash_link=newrow.getElementsByClassName('file_hash_link')[0]
@@ -332,9 +335,21 @@
 	 file_hash_link.innerHTML = item.Hash;
 
 	 let file_target_class = newrow.getElementsByClassName('file_target_class')[0];
-	 if (item.Name != '..') {
-	     let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
-             console.log(callee+'.file_remove_click:',file_remove_click);
+	 let file_remove_click = newrow.getElementsByClassName('file_remove')[0];
+         let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0];
+
+         console.log(callee+'.file_target_class:',file_target_class);
+         console.log(callee+'.file_remove_click:',file_remove_click);
+         console.log(callee+'.file_copy_click:',file_copy_click);
+
+	 if (item.Name == '..') {
+
+	     file_remove_click.style.display = 'none'
+	     file_target_class.style.display = 'none'
+	     file_copy_click.style.display = 'none'
+
+	 } else {
+
              file_remove_click.style.display = ''
              file_remove_click.onclick = function () {
 		 removeFile(item);
@@ -342,29 +357,13 @@
              }
 
 	     file_target_class.style.display = ''
+             item.input = file_target_class // <= FCC input added to item
 
-	     let file_copy_path = newrow.getElementsByClassName('file_target_class')[0]
-             console.log(callee+'.file_copy_path:',file_copy_path);
-
-             item.input = file_copy_path // <= FCC input added to item
-
-             let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
-             file_copy_click.style.display = ''
-             console.log(callee+'.file_copy_click:',file_copy_click);
+	     file_copy_click.style.display = ''
 	     file_copy_click.onclick = function () {
 		 copyFile(item);
 		 display(); // Clean all rows
 	     }
-
-	 } else {
-	     let file_remove_click = newrow.getElementsByClassName('file_remove')[0]
-             console.log(callee+'.file_remove_click:',file_remove_click);
-	     file_remove_click.style.display = 'none'
-	     file_target_class.style.display = 'none'
-
-	     let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0]
-             console.log(callee+'.file_copy_click:',file_copy_click);
-	     file_copy_click.style.display = 'none'
 	 }
 
 	 console.log(callee+'.result.newrow: ',newrow);
