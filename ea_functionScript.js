@@ -212,7 +212,13 @@ function saveSingleFile() {
     let content = document.getElementById("file_contentid").value;
     console.log(callee+'.content:',content);
     return ipfsWriteText(file_path, content) // v0.6.0 truncate works !!!
-	.then ( _ => { console.log(callee+'file_path: '+file_path+' updated')})
+	.then ( hash => {
+     stored['curItem'].Hash = hash
+     stored['curItem'].FullStatus = null
+     //stored['curItem'] = null;
+     display()
+     console.log(callee+'file_path: '+file_path+' updated')
+   })
 	.catch(err => console.error(err))
 	    } 
 

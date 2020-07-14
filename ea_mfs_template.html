@@ -35,8 +35,8 @@
 	    <button name=add onclick="action('Upload & Display')">OK</button>
 	</div>
 	<hr>
-	<div id=outputdivid>
 	    <h2>Outputs</h2>
+	<div id=directory_divid>
 	    <table id=directory_contentid border=1>
 		<thead>
 		    <tr><th colspan=6><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
@@ -59,7 +59,7 @@
 	    </table>
 	</div>
 	<hr>
-	<div>
+	<div id=file_divid>
 	    <table id=file_attributesid border=1>
 		<tr><th colspan=2><h4 id="file_pathid" class="whiteOnDarkBlue">filepath</h4></th>
 		    <tr><th>pin</th><th>hash</th>
@@ -72,6 +72,7 @@
 	    <br>
 	    save as <input id=file_pathsaveid name=pathname type=text value="/tmp/myfile.txt" placeholder="file-location-to-be-saved-to">
 	    <button onclick="saveSingleFile()">save</button> 
+	    <button onclick="closeFile()">close</button> 
 	</div>
 
     </body>
@@ -132,6 +133,15 @@
 	 }
      }
 
+function closeFile() {
+	 let [callee, caller] = functionNameJS();
+	 console.log(callee+'.entering');
+   document.getElementById('mfs_pathinputid').value = item.DirName
+   stored['curItem'] = null
+   display()
+   
+}
+
      function createDirectory() {
 	 let [callee, caller] = functionNameJS();
 	 console.log(callee+'.entering');
@@ -142,10 +152,15 @@
 	 let mfsDirName = document.getElementById('createdirectory_nameid').value;
 	 console.log(callee+'.mfsDirName:',mfsDirName);
 	 
-	 var path_url = msfDirPath + mfsDirName;
+	 var path_url;
+   if (mfsDirName.match(/^\//)) {
+	   path_url = mfsDirName;
+   } else {
+	   path_url = msfDirPath + mfsDirName;
+   }
 	 console.log(callee+'.path_url:',path_url);
 	 
-	 var url = api_url + 'files/mkdir?arg=' + path_url;
+	 var url = api_url + 'files/mkdir?arg=' + path_url + '&parents=true';
 	 console.log(callee+'.url:', url);
 
 	 return fetch(url, { method: "POST", mode: 'cors'})
@@ -262,6 +277,8 @@
 	 let te = document.getElementById('directory_contentid')
 
 	 document.getElementById('directory_pathid').innerHTML = mfs_path
+	 document.getElementById('directory_divid').style.display = ''
+	 document.getElementById('file_divid').style.display = 'none'
 
 	 clear_display_directory_content();
 
@@ -313,7 +330,7 @@
 	 newrow.innerHTML = row.innerHTML; // copy previous row content
 	 console.log(callee+'.newrow:',newrow)
 	 
-	 //	 newrow.setAttribute('id',item.Hash) // FCC not necessary
+	 newrow.setAttribute('id',item.Hash) // use for toglepin's row-identification
 
 	 display_pin(item,newrow);
 
@@ -452,9 +469,11 @@
 	     content = await getContentofMfsPath(cur_path);
 	 }
 
-
-	 let [pin_status,pin_through] = splitPinFullStatus(cur_item.FullStatus)
 	 let hash = cur_item.Hash
+   if(typeof(cur_item.FullStatus) == 'undefined' || cur_item.FullStatus == null) {
+     cur_item.FullStatus = await getPinStatus(hash)
+   }
+	 let [pin_status,pin_through] = splitPinFullStatus(cur_item.FullStatus)
 
 	 console.log(callee+'.cur_item.Name: ',cur_item.Name)
 	 console.log(callee+'.cur_item.FullStatus: ',cur_item.FullStatus)
@@ -475,6 +494,8 @@
 	 console.log(callee+'.link: ',link);
 
 	 document.getElementById('file_contentid').value = content;
+	 document.getElementById('directory_divid').style.display = 'none'
+	 document.getElementById('file_divid').style.display = ''
      }
 
 
