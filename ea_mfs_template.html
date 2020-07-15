@@ -5,14 +5,14 @@
 	<title>Mfs Files Management</title>
 	<link rel="stylesheet" href="style.css"> 
 
-	<!--
+  <!--
 	     <script src="../snippets/js/essential.js"></script>
-
+	     <script id=js src="../jsring/js/ipfs.js"></script>
+	--> <!--
 	     /!\ doesn't work due to "text/plain" i.e. a proxy
 	     <script src="https://raw.githubusercontent.com/michel47/snippets/master/js/essential.js"></script>
 	     <script src="https://github.com/michel47/snippets/raw/7ea10/js/essential.js"></script>
-
-	     <script id=js src="../jsring/js/ipfs.js"></script>
+	--> <!--
 	-->
 	<script src="https://michel47.github.io/snippets/js/essential.js"></script>
 	<script class=exp src="https://willforge.github.io/jsring/js/ipfs.js"></script>
@@ -39,8 +39,8 @@
 	<div id=directory_divid>
 	    <table id=directory_contentid border=1>
 		<thead>
-		    <tr><th colspan=6><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
-		    <tr><th>pin</th><th>type</th><th>name</th><th>hash</th><th>remove</th><th>copy</th></tr>
+		    <tr><th colspan=7><h4 id="directory_pathid" class="whiteOnDarkBlue">directoryPath</h4></th></tr>
+		    <tr><th>pin</th><th>type</th><th>name</th><th>hash</th><th>remove</th><th>copy</th><th>publish</th></tr>
 		</thead>
 		<tbody>
 		    <tr id=dir_row0id class=ls_row">
@@ -54,6 +54,8 @@
 			<td class=file_copy><button class=file_copy_click>Copy to</button>
 			    <input type="text" class="file_target_class" value="" placeholder="IPMS Path">
 			</td>
+			<td class=file_publish><button class=file_publish_click>Publish</button>
+      </td>
 		    </tr>
 		</tbody>
 	    </table>
@@ -72,7 +74,7 @@
 	    <br>
 	    save as <input id=file_pathsaveid name=pathname type=text value="/tmp/myfile.txt" placeholder="file-location-to-be-saved-to">
 	    <button onclick="saveSingleFile()">save</button> 
-	    <button onclick="closeFile()">close</button> 
+	    <button onclick="closeSingleFile()">close</button> 
 	</div>
 
     </body>
@@ -133,7 +135,7 @@
 	 }
      }
 
-function closeFile() {
+function closeSingleFile() {
 	 let [callee, caller] = functionNameJS();
 	 console.log(callee+'.entering');
    document.getElementById('mfs_pathinputid').value = item.DirName
@@ -354,10 +356,12 @@ function closeFile() {
 	 let file_target_class = newrow.getElementsByClassName('file_target_class')[0];
 	 let file_remove_click = newrow.getElementsByClassName('file_remove')[0];
          let file_copy_click = newrow.getElementsByClassName('file_copy_click')[0];
+         let file_publish_click = newrow.getElementsByClassName('file_publish_click')[0];
 
          console.log(callee+'.file_target_class:',file_target_class);
          console.log(callee+'.file_remove_click:',file_remove_click);
          console.log(callee+'.file_copy_click:',file_copy_click);
+         console.log(callee+'.file_publish_click:',file_publish_click);
 
 	 if (item.Name == '..') {
 
@@ -379,8 +383,13 @@ function closeFile() {
 	     file_copy_click.style.display = ''
 	     file_copy_click.onclick = function () {
 		 copyFile(item);
-		 display(); // Clean all rows
+		 display(); // update rows
 	     }
+
+file_publish_click.onclick = function () {
+		 publishFile(item);
+}
+
 	 }
 
 	 console.log(callee+'.result.newrow: ',newrow);

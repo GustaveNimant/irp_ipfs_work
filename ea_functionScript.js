@@ -203,6 +203,25 @@ function getContentofMfsPath(mfsPath) {
     return fetchRespCatch(url)
 }
 
+async function publishFile(item) {
+  let [callee, caller] = functionNameJS(); // logInfo("message !")
+  let hash = item.Hash
+  let name = item.Name
+  let date = new Date;
+  console.log(callee+'.date:',date);
+  let tics = Math.floor(date.getTime() / 1000);
+  console.log(callee+'.tics:',tics);
+  let whash = await getIpfsWrapper(name,hash)
+  let record = whash+': ["'+ item.Path +'",'+ tics +']'
+  console.log(callee+'.record:',record);
+  const brindexf = '/.brings/published/brindex.log';
+  let bhash = await ipfsFileAppend(record,brindexf)
+  let dhash = await getMFSFileHash('/.brings/');
+  return ipfsNamePublish('self','/ipfs/'+dhash)
+  .then(consLog(callee))
+  .catch(logError)
+}
+
 function saveSingleFile() {
     let [callee, caller] = functionNameJS();
 
