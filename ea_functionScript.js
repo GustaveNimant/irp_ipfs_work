@@ -26,7 +26,7 @@ async function getStatofMfsPath(mfs_path) {
 	    return obj;
 	})
 	.catch(console.error)
-	    }  
+}  
 
 function fetch_directory_content(mfs_path) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
@@ -86,7 +86,7 @@ function fetch_directory_content(mfs_path) {
 
 	})
 	.catch( obj => { logError(callee+'.catch',obj) })
-	    }
+}
 
 function getHashofMfsPath(mfs_path) {
     let  url = api_url + 'files/stat?arg='+mfs_path+'&hash=true'
@@ -158,7 +158,7 @@ function getPinStatus(hash) { // getdata
 	    return Promise.resolve(status)
 	})
 	.catch( obj => { logError('getPinStatus.catch',obj) })
-	    }
+}
 
 function togglePinStatus(status, hash) {
     let [callee, caller] = functionNameJS(); // logInfo("message !")
@@ -181,7 +181,7 @@ function ipfsPinAdd(hash) {
     return fetchGetPostText(url)
 	.then(text => { console.log('ipfsPinAdd.text',text); })
 	.catch(err => console.error(err, hash))
-	    }
+}
 
 function ipfsPinRm(hash) {
     let url = api_url + 'pin/rm?arg=/ipfs/'+hash
@@ -203,7 +203,7 @@ function getContentofMfsPath(mfsPath) {
     return fetchRespCatch(url)
 }
 
-async function publishFile(item) {
+async function publishHistory(item) {
   let [callee, caller] = functionNameJS(); // logInfo("message !")
   let hash = item.Hash
   let name = item.Name
@@ -211,16 +211,14 @@ async function publishFile(item) {
   console.log(callee+'.date:',date);
   let tics = Math.floor(date.getTime() / 1000);
   console.log(callee+'.tics:',tics);
-  let whash = await getIpfsWrapper(name,hash)
-  let record = whash+': ["'+ item.Path +'",'+ tics +']'
-  console.log(callee+'.record:',record);
-  const brindexf = '/.brings/published/brindex.log';
-  let bhash = await ipfsFileAppend(record,brindexf)
-  let dhash = await getMFSFileHash('/.brings/');
-  return ipfsNamePublish('self','/ipfs/'+dhash)
-  .then(consLog(callee))
-  .catch(logError)
+  let hrecord = hash+': ["'+ item.Path +'",'+ tics +']'
+  console.log(callee+'.hrecord:',hrecord);
+  const historyf = '/.brings/published/history.log';
+  let hhash = await ipfsLogAppend(historyf,hrecord)
+  console.log(callee+'.hhash:',hhash);
+  return hhash
 }
+
 
 function saveSingleFile() {
     let [callee, caller] = functionNameJS();
@@ -239,5 +237,5 @@ function saveSingleFile() {
      console.log(callee+'file_path: '+file_path+' updated')
    })
 	.catch(err => console.error(err))
-	    } 
+} 
 
