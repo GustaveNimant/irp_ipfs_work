@@ -1,0 +1,44 @@
+<DOCTYPE html>
+    <html>
+	<head>
+    </head>
+    <body>
+	<span id="val"></span>
+	<script>
+	 var myParent = document.body;
+	 console.log("myParent", myParent)
+	 //Create array of options to be added
+	 var array = ["emilea","alainb","michelc","imans"];
+
+	 //Create and append select list
+	 var selectList = document.createElement("select");
+	 selectList.id = "mySelect";
+	 myParent.appendChild(selectList);
+
+	 var selection= -1
+	 //Create and append the options
+	 for (var i = 0; i < array.length; i++) {
+	     var option = document.createElement("option");
+	     console.log("option", option)
+	     option.setAttribute("index", i);
+	     option.value = array[i];
+	     console.log("option.value", option.value)
+	     option.text = array[i];
+	     selectList.appendChild(option);
+	     console.log("option.selected", option.selected)
+	     if (option.selected){
+		 selection = i
+	     }
+	 }
+	 
+	 console.log("selectList", selectList);	 
+	 console.log("selection", selection)
+	 
+	 choice = selectList.selectedIndex
+	 console.log("choice", choice)
+	 val = selectList.options[choice].value
+	 console.log("val", val)
+	 
+	</script>
+    </body>
+    </html>
